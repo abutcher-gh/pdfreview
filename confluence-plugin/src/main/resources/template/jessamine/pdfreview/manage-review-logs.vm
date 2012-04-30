@@ -1,0 +1,19 @@
+<html>
+ <head>
+  <title>Review history management for page $action.page</title>
+  <meta name="decorator" content="atl.general"/>
+ </head>
+ <body>
+  <div id='main'>
+   <p>From java: $action.redirect</p>
+   <p>From java: $!action.error</p>
+   $action.reviewHistoryTree
+   <form name="clear-history" method="post"
+         action="manage-review-logs.action?page=$action.page&forceClear=true" class="aui">
+     #form_xsrfToken()
+     #tag ("Submit" "name='confirm'" "value='Clear history'" "theme='notable'" )
+   </form>
+  </div>
+ </body>
+</html>
+

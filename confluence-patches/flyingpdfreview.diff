@@ -1,0 +1,303 @@
+diff -urN 00D28F48.0/atlassian-plugin.xml 00D28F48.1/atlassian-plugin.xml
+--- 00D28F48.0/atlassian-plugin.xml	2011-05-20 04:24:20 +0100
++++ 00D28F48.1/atlassian-plugin.xml	2011-07-19 13:09:10 +0100
+@@ -1,7 +1,7 @@
+-<atlassian-plugin key="com.atlassian.confluence.extra.flyingpdf" name="Confluence PDF Export">
++<atlassian-plugin key="com.atlassian.confluence.extra.flyingpdf" name="Confluence PDF Export/Review">
+     <plugin-info>
+-        <description>PDF export engine for Confluence</description>
+-        <version>1.13</version>
++        <description>PDF export/review engine for Confluence</description>
++        <version>1.13.1</version>
+         <!--  <version>1.1</version> -->
+     </plugin-info>
+     
+@@ -102,6 +102,17 @@
+             <link>/download/resources/com.atlassian.confluence.extra.flyingpdf/icons/pdf-stylesheet.gif</link>
+         </icon>
+     </web-item>
++
++    <!-- Review menu item -->
++    <web-item key="start-pdf-review" name="Start PDF Review" section="system.content.action/primary" weight="100">
++        <label key="Start PDF Review" />
++        <link>/spaces/flyingpdf/flyingpdfreview.action?fromid=$page.id&amp;fromtitle=$page.title&amp;key=$space.key</link> 
++        <icon height="16" width="16">
++            <link>/images/icons/exp_16.gif</link>
++        </icon>
++    </web-item>
++    <!-- End review menu item -->
++
+     
+     <web-item key="betterpdfpage" name="UI for Page PDF Export" section="system.content.action/secondary" weight="30">
+ 	    <label key="menu.pdfexport.page" />
+@@ -156,6 +167,11 @@
+                  <result name="input" type="velocity">/templates/extra/pdfexport/exportspace.vm</result>
+                  <result name="error" type="velocity">/templates/extra/pdfexport/exportspace.vm</result>
+    	        </action>
++	        <action name="flyingpdfreview" class="com.atlassian.confluence.extra.flyingpdf.BetterExportSpaceAction" method="doDefault">
++                 <param name="RequireSecurityToken">false</param>
++                 <result name="input" type="velocity">/templates/extra/pdfexport/reviewspace.vm</result>
++                 <result name="error" type="velocity">/templates/extra/pdfexport/reviewspace.vm</result>
++   	        </action>
+ 	        <action name="doflyingpdf" class="com.atlassian.confluence.extra.flyingpdf.BetterExportSpaceAction">
+                 <param name="RequireSecurityToken">true</param>            
+ 	            <result name="error" type="velocity">/templates/extra/pdfexport/exportspace.vm</result>
+diff -urN 00D28F48.0/com/atlassian/confluence/plugins/flyingpdf/i18n.properties 00D28F48.1/com/atlassian/confluence/plugins/flyingpdf/i18n.properties
+--- 00D28F48.0/com/atlassian/confluence/plugins/flyingpdf/i18n.properties	2011-05-20 04:24:20 +0100
++++ 00D28F48.1/com/atlassian/confluence/plugins/flyingpdf/i18n.properties	2011-07-20 17:28:42 +0100
+@@ -24,7 +24,13 @@
+ com.atlassian.confluence.extra.flyingpdf.progress.pageConvertedToPdf=Converting page {0} of {1} to PDF
+ com.atlassian.confluence.extra.flyingpdf.progress.errored=Failed during PDF export. Exception message - {0}
+ com.atlassian.confluence.extra.flyingpdf.progress.started=Started PDF space export
+-com.atlassian.confluence.extra.flyingpdf.progress.completed=Finished PDF space export. Download <a href=\"{0}\">here</a>.
++
++com.atlassian.confluence.extra.flyingpdf.progress.completed=\
++   Finished PDF space export. Download <a href=\"{0}\">here</a>.\
++   <iframe style=\"position:absolute; visibility:hidden; left:0; top:0\" src=\"/pdfreview/review-redirector.html?file={0}\"></iframe>
++
++#   <p>Start a review <a href=\"/pdfreview/review-redirector.html?file={0}\">here</a>.</p>\
++
+ com.atlassian.confluence.extra.flyingpdf.progress.contenttreecalculated=Finished calculating the pages to be exported
+ com.atlassian.confluence.extra.flyingpdf.progress.calculatecontenttree=Begin calculating the pages to be exported
+ com.atlassian.confluence.extra.flyingpdf.progress.beginhtmltopdf=Begin conversion of intermediate HTML to PDF
+diff -urN 00D28F48.0/templates/extra/pdfexport/reviewspace-checkboxes.vm 00D28F48.1/templates/extra/pdfexport/reviewspace-checkboxes.vm
+--- 00D28F48.0/templates/extra/pdfexport/reviewspace-checkboxes.vm	1970-01-01 00:00:00 
++++ 00D28F48.1/templates/extra/pdfexport/reviewspace-checkboxes.vm	2011-07-20 17:59:40 +0100
+@@ -0,0 +1,103 @@
++#**
++ * Required context variables:
++ *
++ * $action      - the Webwork export action that is performing the export
++ * $contentTree - the ContentTree to be displayed
++ * $fromid      - optional - if set will recursively mark from the identified page
++ *#
++ 
++#requireResource("confluence.web.resources:ajs")
++#requireResource("confluence.sections.space.export.view:spaceexport")
++
++#if ($fromid == "")
++#set ($defcheck = "checked=\"checked\"")
++#else
++#set ($defcheck = "")
++#end
++
++#macro (displayReviewPageHierarchyWithCheckboxes $contentTree $checkboxName)
++    #foreach ($rootNode in $contentTree.getRootNodes())
++        #displayReviewPageHierarchyWithCheckboxesHelper($rootNode $checkboxName $defcheck)
++    #end
++#end
++
++#macro (displayReviewPageHierarchyWithCheckboxesHelper $node $checkboxName $check)
++    #if ($node.getPage().getId() == $fromid)
++    #set ($check = "checked=\"checked\"")
++    #end
++    <li style="list-style:none">
++        <input type="checkbox" name="$checkboxName" class="exportContentTreeCheckbox" value="$node.getPage().getId()" $check style="vertical-align: middle" />
++        <label class="label">#contentLink2($node.getPage() false false)</label>
++        #if (!$node.children.isEmpty())
++            <a class="togglemeonlytreenode" href="#">&nbsp;</a>
++        #end
++
++        #foreach ($childNode in $node.children)
++            <ul style="list-style:none">
++            #displayReviewPageHierarchyWithCheckboxesHelper($childNode $checkboxName $check)
++            </ul>
++            #if ($childNode.getPage().getId() == $fromid && $defcheck == "")
++               #set ($check = "")
++            #end
++        #end
++    </li>
++#end
++
++<div class="export-container">
++    #if ($visibilityOption == true)
++        <fieldset class="group">
++            <legend><span>$action.getText("pages.to.be.exported")</span></legend>
++            <div class="matrix">
++                <div class="radio">
++                  <input class="radio centered" type="radio"  id="contentOptionAll" name="contentOption" value="all">
++                  <label for="contentOptionAll">$action.getText('export.space.content.option.all')</label>
++                </div>
++                <div class="radio">
++                  <input class="radio centered" type="radio"  id="contentOptionVisible" name="contentOption" value="all" checked="checked">
++                  <label for="contentOptionVisible">$action.getText('export.space.content.option.visible')</label>
++                </div>
++            </div>
++        </fieldset>
++    #end
++    <ul class="options">
++        <li>
++            <a class="checkAllLink" href="#">$action.getText("select-all")</a>
++        </li>
++        <li>
++            <a class="clearAllLink" href="#">$action.getText("deselect-all")</a>
++        </li>
++        #if ($includeCommentsOption == true)
++            <li>
++                <input type="checkbox" class="centered" name="includeComments" id="includeComments" value="true" #if( ${includeComments.toString()} == "true" )checked="checked"#end/><label for="includeComments">$action.getText("include-comments")</label>
++            </li>
++        #end
++        #if ($backupAttachmentsOption == true)
++            <li>
++                <input type="checkbox" class="centered" name="backupAttachments" id="backupAttachments" value="true" #if ($backupAttachments) checked #end/><label for="backupAttachments">$action.getText("include.attachments")</label>
++            </li>
++        #end
++    </ul>
++    <div class="tree-container">
++        <ul id="exportContentTree">
++            #displayReviewPageHierarchyWithCheckboxes($contentTree 'contentToBeExported')
++        </ul>
++    </div>
++    <ul class="options">
++        <li>
++            <a class="checkAllLink" href="#">$action.getText("select-all")</a>
++        </li>
++        <li>
++            <a class="clearAllLink" href="#">$action.getText("deselect-all")</a>
++        </li>
++        #if ($includeCommentsOption == true)
++            <li>
++                <input type="checkbox" class="centered" name="includeCommentsCopy" id="includeCommentsCopy" value="true" #if( ${includeComments.toString()} == "true" )checked="checked"#end/><label for="includeCommentsCopy">$action.getText("include-comments")</label>
++            </li>
++        #end
++        #if ($backupAttachmentsOption == true)
++            <li>
++                <input type="checkbox" class="centered" name="backupAttachmentsCopy" id="backupAttachmentsCopy" value="true" #if ($backupAttachments) checked #end/><label for="backupAttachmentsCopy">$action.getText("include.attachments")</label>
++            </li>
++        #end
++    </ul>
++</div>
+diff -urN 00D28F48.0/templates/extra/pdfexport/reviewspace.vm 00D28F48.1/templates/extra/pdfexport/reviewspace.vm
+--- 00D28F48.0/templates/extra/pdfexport/reviewspace.vm	1970-01-01 00:00:00 
++++ 00D28F48.1/templates/extra/pdfexport/reviewspace.vm	2011-08-08 07:47:12 +0100
+@@ -0,0 +1,130 @@
++#macro (resolvePath $contentTree)
++#foreach ($rootNode in $contentTree.getRootNodes())
++#set ($resolvePathStack = [])
++#resolvePathI($rootNode)
++#end
++#end
++
++#macro (resolvePathI $node)
++#if ($resolvePathStack != false)
++#set ($_ = $resolvePathStack.add($node))
++#if ($fromid == $node.getPage().getId())
++#foreach ($x in $resolvePathStack)/$x.getPage().getTitle()#end
++#set ($resolvePathStack = false)
++#end
++#if ($resolvePathStack != false)
++#foreach ($child in $node.children)
++#resolvePathI($child)
++#end
++#end
++#set ($_ = $resolvePathStack.size() - 1)
++#set ($_ = $resolvePathStack.remove($_))
++#end
++#end
++
++<html>
++
++    #set ($fromid = "$req.getParameter('fromid')")
++    #set ($fromtitle = "$req.getParameter('fromtitle')")
++    #set ($baseurl = $action.getGlobalSettings().getBaseUrl())
++
++	<head>
++		<title>Start PDF Review of $fromtitle</title>
++    </head>
++
++    #applyDecorator("root")
++        #decoratorParam("helper" $action.helper)
++        #decoratorParam("context" "space-operations")
++        #decoratorParam("mode"  "view-space-operations")
++
++        <body>
++
++        <script type='text/javascript'>//<![CDATA[
++            function populateFwdData()
++            {
++               form = document.exportspaceform;
++               input = form.elements;
++               form.action +=
++                  '&reviewPath=' + input['reviewPath'].value +
++                  '&reviewLabel=' + input['reviewLabel'].value +
++                  '&reviewPages=';
++
++               pages = input['contentToBeExported'];
++               docomma = 0;
++               for (i = 0; i != pages.length; ++i)
++               {
++                  page = pages[i];
++                  if (page.checked)
++                  {
++                     if (docomma)
++                        form.action += ',';
++                     else
++                        docomma = 1;
++                     form.action += page.value;
++                  }
++               }
++               return true;
++            }
++        //]]></script>
++
++        #if ($actionErrors.size() == 0)
++            #set ($selection = "betterpdf")
++        #else
++            #set ($selection = "noselection")
++        #end
++
++            #applyDecorator ("root")
++                #decoratorParam ("context" "spacecontentpanel")
++                #decoratorParam ("selection" $selection)
++                #decoratorParam ("title" "Start PDF Review")
++                #decoratorParam ("selectedTab" "content")
++                #decoratorParam ("helper" $action.helper)
++
++                #if ($actionErrors.size() == 0)
++                <form name="exportspaceform" method="post"
++                   action="doflyingpdf.action?key=${generalUtil.htmlEncode($key)}&amp;base=$baseurl$req.contextPath" class="aui" onsubmit="return populateFwdData()">
++                #form_xsrfToken()
++                   
++                <div class="menuheading"><strong>Content for review</strong></div>
++                <p>By default the hierarchy of pages starting at '$fromtitle' will be submitted.</p>
++
++                <div class="export-space-body">
++                   <input type="hidden" name="synchronous" value="false"/>
++                   #tag ("Submit" "name='confirm'" "value='Submit for Review'" "theme='notable'" )
++
++                   #if( $contentTree.size() > 0 )
++                       #parse ("templates/extra/pdfexport/reviewspace-checkboxes.vm")
++                       #tag ("Submit" "name='confirm'" "value='Submit for Review'" "theme='notable'" )
++                   #end
++                </div>
++
++                <div class="menuheading"><strong>Path and label for review</strong></div>
++                <p>
++                   Typically leave these as is.  The path determines
++                   the page the review data will be associated with.
++                   Multiple reviews can be recorded against the same
++                   page.  The label identifies a particular review
++                   within the page. 
++                </p>
++                <p>
++                   Change the path if you customized the page selection
++                   above and wish to associate the review to somewhere
++                   else in the tree (e.g. higher in the hierarchy).
++                   Change the label if you wish to distinguish the
++                   review within the page in some way.
++                </p>
++                <fieldset>
++                <label style="float:left;width:8em;" for="reviewPath">Review Path:</label>
++                <input type="text" name="reviewPath" class="text long-field" id="reviewPath" value="#resolvePath($contentTree)"/>
++                <br/>
++                <label style="float:left;width:8em;" for="reviewLabel">Review Label:</label>
++                <input type="text" name="reviewLabel" class="text long-field" id="reviewLabel" value="$fromtitle"/>
++                <br/>
++                </fieldset>
++
++                </form>
++                #end
++            #end
++        </body>
++        #end
++</html>

@@ -1,0 +1,66 @@
+<atlassian-plugin key="${atlassian.plugin.key}" name="PDF Review for Confluence" pluginsVersion="2">
+    <plugin-info>
+        <description><!-- TODO: add description --> </description>
+        <version>${project.version}</version>
+        <!-- TODO: Add vendor details -->
+        <!--
+        <vendor name="Example Company" url="http://www.example.com"/>
+        -->
+    </plugin-info>
+
+    <component-import key="themeSettings">
+       <interface>com.atlassian.confluence.plugins.doctheme.Settings</interface>
+    </component-import>
+
+    <macro name="review-progress" class="com.jessamine.pdfreview.confluence.ReviewProgress" key="review-progress">
+        <description>Tracks progress of a PDF review.</description>
+        <category name="confluence-content"/>
+        <parameters>
+            <parameter name="id" type="string"/>
+        </parameters>
+    </macro>
+
+    <macro name="review-status" class="com.jessamine.pdfreview.confluence.ReviewStatus" key="review-status">
+        <description>Reports on reviewed status of a page.</description>
+        <category name="confluence-content"/>
+    </macro>
+
+    <macro name="review-index" class="com.jessamine.pdfreview.confluence.ReviewIndex" key="review-index">
+        <description>Displays review index properties.</description>
+        <category name="confluence-content"/>
+        <parameters>
+            <parameter name="page" type="string"/>
+        </parameters>
+    </macro>
+
+    <xwork name="Review Pages" key="reviewactions">
+	    <package name="pdfreview" extends="default" namespace="/plugins/pdfreview">
+	        <default-interceptor-ref name="defaultStack"/> 
+
+	        <action name="start-review" class="com.jessamine.pdfreview.confluence.StartReview">
+                 <param name="RequireSecurityToken">false</param>
+                 <result name="error" type="velocity">/template/jessamine/pdfreview/start-review.vm</result>
+                 <!--result name="success" type="velocity">/template/jessamine/pdfreview/start-review.vm</result-->
+                 <result name="success" type="redirect">${redirect}</result>
+   	     </action>
+
+	        <action name="manage-review-logs" class="com.jessamine.pdfreview.confluence.ManageReviewLogs">
+                 <param name="RequireSecurityToken">false</param>
+                 <result name="input" type="velocity">/template/jessamine/pdfreview/manage-review-logs.vm</result>
+                 <result name="error" type="velocity">/template/jessamine/pdfreview/manage-review-logs.vm</result>
+                 <result name="success" type="redirect">${redirect}</result>
+   	     </action>
+
+	        <action name="watch-page" class="com.jessamine.pdfreview.confluence.WatchPage">
+                 <param name="RequireSecurityToken">false</param>
+           </action>
+
+	        <action name="client-check" class="com.jessamine.pdfreview.confluence.ClientCheck">
+                 <param name="RequireSecurityToken">false</param>
+                 <result name="error" type="velocity">/template/jessamine/pdfreview/client-check.vm</result>
+           </action>
+
+      </package>
+   </xwork>
+
+</atlassian-plugin>

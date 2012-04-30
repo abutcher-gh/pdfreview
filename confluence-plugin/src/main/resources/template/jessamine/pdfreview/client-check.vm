@@ -1,0 +1,6 @@
+
+   Client version $action.clientVersion insufficient for that required
+   by server.  Server requires client version ${action.requiredClientVersion}.
+ 
+   Get the latest version from $action.clientUrl
+
