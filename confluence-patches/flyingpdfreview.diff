@@ -6,9 +6,9 @@ diff -urN 00D28F48.0/atlassian-plugin.xml 00D28F48.1/atlassian-plugin.xml
 +<atlassian-plugin key="com.atlassian.confluence.extra.flyingpdf" name="Confluence PDF Export/Review">
      <plugin-info>
 -        <description>PDF export engine for Confluence</description>
--        <version>1.13</version>
+-        <version>__PATCH_VERSION</version>
 +        <description>PDF export/review engine for Confluence</description>
-+        <version>1.13.1</version>
++        <version>__PATCH_VERSION-pdfreview</version>
          <!--  <version>1.1</version> -->
      </plugin-info>
      

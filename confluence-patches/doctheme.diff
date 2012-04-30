@@ -1,5 +1,5 @@
---- C:/TEMP/WINMERGE.00001B7C/00D130C8.0/atlassian-plugin.xml	Thu Feb 17 01:24:32 2011
-+++ C:/TEMP/WINMERGE.00001B7C/00D130C8.1/atlassian-plugin.xml	Fri Aug 05 17:38:30 2011
+--- doctheme-plugin/atlassian-plugin.xml	Thu Feb 17 01:24:32 2011
++++ doctheme-plugin/atlassian-plugin.xml	Fri Aug 05 17:38:30 2011
 @@ -17,6 +17,11 @@
          <interface>com.atlassian.confluence.plugins.doctheme.ThemeService</interface>
      </component>
