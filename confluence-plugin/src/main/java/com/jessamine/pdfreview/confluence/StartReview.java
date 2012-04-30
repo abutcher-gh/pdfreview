@@ -421,7 +421,7 @@ public class StartReview extends ConfluenceActionSupport
 
       ctx.setMinorEdit(false);
 
-      String existingContent = reviewPage.getContent();
+      String existingContent = reviewPage.getBodyAsString();
 
       log("Getting prop from  " + reviewPage.getTitle());
 

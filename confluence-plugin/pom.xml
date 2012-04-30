@@ -4,105 +4,92 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <parent>
-        <groupId>com.atlassian.confluence.plugin.base</groupId>
-        <artifactId>confluence-plugin-base</artifactId>
-        <version>27</version>
-    </parent>
-
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.jessamine.confluence</groupId>
+    <groupId>uk.co.jessamine.confluence</groupId>
     <artifactId>pdfreview</artifactId>
-    <version>0.1</version>
+    <version>0.2-beta</version>
 
     <name>PDF Review for Confluence</name>
-    <packaging>atlassian-plugin</packaging>
-
-    <properties>
-        <atlassian.plugin.key>com.jessamine.confluence.pdfreview</atlassian.plugin.key>
-
-        <!-- Confluence version -->
-        <atlassian.product.version>3.5</atlassian.product.version>
-        <!-- Confluence plugin functional test library version -->
-        <atlassian.product.test-lib.version>1.4.1</atlassian.product.test-lib.version>
-        <!-- Confluence data version -->
-        <atlassian.product.data.version>3.5</atlassian.product.data.version>
-    </properties>
-
-
-<dependencies>
-                <dependency>
-                        <groupId>com.opensymphony</groupId>
-                        <artifactId>xwork</artifactId>
-                        <version>2.1.1</version>
-                        <scope>compile</scope>
-                </dependency>
-
-                <dependency>
-                        <groupId>org.apache.struts</groupId>
-                        <artifactId>struts2-core</artifactId>
-                        <version>2.1.2</version>
-                        <scope>compile</scope>
-                </dependency>
-
-                <dependency>
-                        <groupId>com.atlassian.confluence.plugins</groupId>
-                        <artifactId>doctheme</artifactId>
-                        <version>1.9</version>
-                        <scope>compile</scope>
-                </dependency>
-</dependencies>
-
-
-    <!-- TODO: Add project description -->
     <description>Provides review management via PDF / FDF files</description>
     <url>https://www.assembla.com/spaces/ajbhome-process</url>
+    <packaging>atlassian-plugin</packaging>
 
-    <!-- TODO: Complete developer details -->
-    <!--
-	<developers>
-		<developer>
-			<name>John Smith</name>
-			<organization>Example Company</organization>
-		</developer>
-	</developers>
-	-->
+    <organization>
+        <name>Adam Butcher</name>
+        <url>https://www.assembla.com/spaces/ajbhome-process/</url>
+    </organization>
 
-    <!-- TODO: Complete source control details -->
-    <!--
-    <scm>
-		<connection></connection>
-		<developerConnection></developerConnection>
-		<url></url>
-	</scm>
-	-->
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.6</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence</artifactId>
+            <version>${confluence.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence.plugin</groupId>
+            <artifactId>func-test</artifactId>
+            <version>2.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.jwebunit</groupId>
+            <artifactId>jwebunit-htmlunit-plugin</artifactId>
+            <version>2.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.nekohtml</groupId>
+            <artifactId>nekohtml</artifactId>
+            <version>1.9.12</version>
+            <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>com.atlassian.confluence.plugins</groupId>
+		    <artifactId>doctheme</artifactId>
+		    <version>${confluence.version}</version>
+		    <scope>compile</scope>
+		</dependency>
+    </dependencies>
 
-    <!--You can define Ant tasks to be executed before and/or after integration tests --><!--
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>pre-integration-test-user-ant-tasks</id>
-                        <configuration>
-                            <tasks>
-                                <echo message="Ant task before integration tests."/>
-                            </tasks>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>post-integration-test-user-ant-tasks</id>
-                        <configuration>
-                            <tasks>
-                                <echo message="Ant task _after_ integration tests."/>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-confluence-plugin</artifactId>
+                <version>${amps.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <productVersion>${confluence.version}</productVersion>
+                    <productDataVersion>${confluence.data.version}</productDataVersion>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
             </plugin>
         </plugins>
-    </build>-->
+    </build>
+
+    <properties>
+        <confluence.version>4.2.1</confluence.version>
+        <confluence.data.version>3.5</confluence.data.version>
+        <amps.version>3.9.3</amps.version>
+    </properties>
 
 </project>
