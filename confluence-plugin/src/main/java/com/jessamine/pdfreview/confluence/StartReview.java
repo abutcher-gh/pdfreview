@@ -468,7 +468,7 @@ public class StartReview extends ConfluenceActionSupport
 
       log("content updated");
 
-      File file = new File(pdfFile.replace("/download", bootstrapManager.getConfluenceHome()));
+      File file = new File(pdfFile.replace(bootstrapManager.getWebAppContextPath() + "/download", bootstrapManager.getConfluenceHome()));
 
       Attachment attachment = new Attachment(reviewTag+".pdf", "application/pdf", file.length(), "Snapshot for review " + reviewId);
 

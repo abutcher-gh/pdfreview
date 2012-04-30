@@ -8,11 +8,11 @@ diff -urN 00D28F48.0/atlassian-plugin.xml 00D28F48.1/atlassian-plugin.xml
 -        <description>PDF export engine for Confluence</description>
 -        <version>__PATCH_VERSION</version>
 +        <description>PDF export/review engine for Confluence</description>
-+        <version>__PATCH_VERSION-pdfreview</version>
++        <version>__PATCH_VERSION.1</version>
          <!--  <version>1.1</version> -->
      </plugin-info>
      
-@@ -102,6 +102,17 @@
+@@ -102,6 +102,18 @@
              <link>/download/resources/com.atlassian.confluence.extra.flyingpdf/icons/pdf-stylesheet.gif</link>
          </icon>
      </web-item>
@@ -27,6 +27,7 @@ diff -urN 00D28F48.0/atlassian-plugin.xml 00D28F48.1/atlassian-plugin.xml
 +    </web-item>
 +    <!-- End review menu item -->
 +
++    <resource key="review-redirector" name="review-redirector.html" type="download" location="templates/extra/pdfexport/review-redirector.html"/>
      
      <web-item key="betterpdfpage" name="UI for Page PDF Export" section="system.content.action/secondary" weight="30">
  	    <label key="menu.pdfexport.page" />
@@ -53,9 +54,9 @@ diff -urN 00D28F48.0/com/atlassian/confluence/plugins/flyingpdf/i18n.properties 
 +
 +com.atlassian.confluence.extra.flyingpdf.progress.completed=\
 +   Finished PDF space export. Download <a href=\"{0}\">here</a>.\
-+   <iframe style=\"position:absolute; visibility:hidden; left:0; top:0\" src=\"/pdfreview/review-redirector.html?file={0}\"></iframe>
++   <iframe style=\"position:absolute; visibility:hidden; left:0; top:0\" src=\"../../download/resources/com.atlassian.confluence.extra.flyingpdf/review-redirector.html?file={0}\"></iframe>
 +
-+#   <p>Start a review <a href=\"/pdfreview/review-redirector.html?file={0}\">here</a>.</p>\
++#   <p>Start a review <a href=\"../../download/resources/com.atlassian.confluence.extra.flyingpdf/review-redirector.html?file={0}\">here</a>.</p>\
 +
  com.atlassian.confluence.extra.flyingpdf.progress.contenttreecalculated=Finished calculating the pages to be exported
  com.atlassian.confluence.extra.flyingpdf.progress.calculatecontenttree=Begin calculating the pages to be exported
@@ -63,7 +64,7 @@ diff -urN 00D28F48.0/com/atlassian/confluence/plugins/flyingpdf/i18n.properties 
 diff -urN 00D28F48.0/templates/extra/pdfexport/reviewspace-checkboxes.vm 00D28F48.1/templates/extra/pdfexport/reviewspace-checkboxes.vm
 --- 00D28F48.0/templates/extra/pdfexport/reviewspace-checkboxes.vm	1970-01-01 00:00:00 
 +++ 00D28F48.1/templates/extra/pdfexport/reviewspace-checkboxes.vm	2011-07-20 17:59:40 +0100
-@@ -0,0 +1,103 @@
+@@ -0,0 +1,105 @@
 +#**
 + * Required context variables:
 + *
@@ -83,7 +84,9 @@ diff -urN 00D28F48.0/templates/extra/pdfexport/reviewspace-checkboxes.vm 00D28F4
 +
 +#macro (displayReviewPageHierarchyWithCheckboxes $contentTree $checkboxName)
 +    #foreach ($rootNode in $contentTree.getRootNodes())
-+        #displayReviewPageHierarchyWithCheckboxesHelper($rootNode $checkboxName $defcheck)
++        #if (!$rootNode.getPage().getTitle().matches("^_.*"))
++            #displayReviewPageHierarchyWithCheckboxesHelper($rootNode $checkboxName $defcheck)
++        #end
 +    #end
 +#end
 +
@@ -255,7 +258,7 @@ diff -urN 00D28F48.0/templates/extra/pdfexport/reviewspace.vm 00D28F48.1/templat
 +
 +                #if ($actionErrors.size() == 0)
 +                <form name="exportspaceform" method="post"
-+                   action="doflyingpdf.action?key=${generalUtil.htmlEncode($key)}&amp;base=$baseurl$req.contextPath" class="aui" onsubmit="return populateFwdData()">
++                   action="doflyingpdf.action?key=${generalUtil.htmlEncode($key)}&amp;base=$baseurl" class="aui" onsubmit="return populateFwdData()">
 +                #form_xsrfToken()
 +                   
 +                <div class="menuheading"><strong>Content for review</strong></div>
@@ -300,4 +303,39 @@ diff -urN 00D28F48.0/templates/extra/pdfexport/reviewspace.vm 00D28F48.1/templat
 +            #end
 +        </body>
 +        #end
++</html>
+diff -urN 00D28F48.0/templates/extra/pdfexport/review-redirector.html 00D28F48.1/templates/extra/pdfexport/review-redirector.html
+--- 00D28F48.0/templates/extra/pdfexport/review-redirector.html	1970-01-01 00:00:00 
++++ 00D28F48.1/templates/extra/pdfexport/review-redirector.html	2011-07-20 17:59:40 +0100
+@@ -0,0 +1,31 @@
++<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
++<html>
++<head> <title>Review Redirector</title> </head>
++<body>
++
++<div id='main'>
++   <h2>Error in call.  This page should be reached from Confluence.</h2>
++</div>
++
++<script type='text/javascript'>
++
++var q = window.location.href.indexOf('?');
++if (q > 0 && document.referrer != "" && window.parent)
++{
++   referrer = document.referrer + "&" + window.location.href.slice(q+1);
++
++   querystring = referrer.slice(referrer.indexOf('?'));
++   querymap = {};
++
++   querystring.replace(
++      new RegExp("([^?=&]+)(=([^&]*))?", "g"),
++         function($0, $1, $2, $3) { querymap[$1] = $3; }
++      );
++
++   // redirect parent page if it was a review request
++   if (querymap['reviewLabel'] != null)
++      window.parent.location = querymap['base'] + "/plugins/pdfreview/start-review.action" + querystring;
++}
++</script>
++</body>
 +</html>
