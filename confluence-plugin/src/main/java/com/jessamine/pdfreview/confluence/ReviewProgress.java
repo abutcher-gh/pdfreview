@@ -124,7 +124,8 @@ public class ReviewProgress extends BaseMacro
       else
          participate = "<h3><a id='"+tag+"' href=\"pdfreview:" + webdavUrl
                + "?tag=" + tag + "&amp;user="+user.getName()+ "&amp;page="+page.getId() + authcookie + token + "\"><u>Review latest content</u></a></h3>"
-               + "<p><strong>Note:</strong> If the link above doesn't work for you then you need to install the <tt>pdfreview</tt> URL scheme and scripts from <a href=\"" + ClientCheck.clientUrl + "\">here</a>.</p>"
+               + "<p><strong>Note:</strong> If the link above doesn't attempt to start the desktop review tool then you need to install the <tt>pdfreview</tt> URL scheme and scripts from <a href=\"" + ClientCheck.clientUrl + "\">here</a>.</p>"
+               + "<p><strong>BUG:</strong> The first time you go to the link (assuming the desktop tool is installed) the link may fail due to authorization.  If this occurs reload this page and try again &mdash; it is as yet unknown as to why this happens for some clients.</p>"
                ;
 
       rc.append("<p><strong>Status:</strong> "
