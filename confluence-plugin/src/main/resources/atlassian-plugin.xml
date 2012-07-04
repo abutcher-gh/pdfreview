@@ -2,10 +2,7 @@
     <plugin-info>
         <description><!-- TODO: add description --> </description>
         <version>${project.version}</version>
-        <!-- TODO: Add vendor details -->
-        <!--
-        <vendor name="Example Company" url="http://www.example.com"/>
-        -->
+        <vendor name="Adam Butcher" url="http://www.assembla.com/spaces/ajbhome-process/wiki#pdf_reviewing_with_confluence"/>
     </plugin-info>
 
     <component-import key="themeSettings">

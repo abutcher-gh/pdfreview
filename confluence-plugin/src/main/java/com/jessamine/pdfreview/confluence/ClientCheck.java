@@ -4,7 +4,7 @@ import com.atlassian.confluence.core.ConfluenceActionSupport;
 
 public class ClientCheck extends ConfluenceActionSupport
 {
-   public static final String clientUrl = "https://www.assembla.com/spaces/ajbhome-process/wiki";
+   public static final String clientUrl = "https://www.assembla.com/spaces/ajbhome-process/wiki#pdf_review_client_scripts";
    public static final double requiredClientVersion = 0.2;
 
    ClientCheck()
