@@ -1,8 +1,8 @@
-<atlassian-plugin key="${atlassian.plugin.key}" name="PDF Review for Confluence" pluginsVersion="2">
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" pluginsVersion="2">
     <plugin-info>
-        <description><!-- TODO: add description --> </description>
+        <description>${project.description}</description>
         <version>${project.version}</version>
-        <vendor name="Adam Butcher" url="http://www.assembla.com/spaces/ajbhome-process/wiki#pdf_reviewing_with_confluence"/>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
     </plugin-info>
 
     <component-import key="themeSettings">
