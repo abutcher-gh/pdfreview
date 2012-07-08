@@ -33,6 +33,7 @@ import com.atlassian.user.User;
 
 public class ManageReviewLogs extends ConfluenceActionSupport
 {
+   private static final long serialVersionUID = 9063317947114043994L;
    private BootstrapManager bootstrapManager;
    private PageManager pageManager;
    private AttachmentManager attachmentManager;

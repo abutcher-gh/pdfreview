@@ -26,15 +26,16 @@ import com.atlassian.confluence.spaces.Space;
 import com.atlassian.confluence.security.SpacePermission;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.user.User;
-
+import com.atlassian.xwork.FileUploadUtils;
+import com.atlassian.xwork.FileUploadUtils.FileUploadException;
 import com.atlassian.confluence.themes.ThemeManager;
-import com.atlassian.confluence.themes.Theme;
 import com.atlassian.bandana.BandanaManager;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
 
 
 public class StartReview extends ConfluenceActionSupport
 {
+   private static final long serialVersionUID = 3738537989616375864L;
    private BootstrapManager bootstrapManager;
    private PageManager pageManager;
    private AttachmentManager attachmentManager;
@@ -71,12 +72,15 @@ public class StartReview extends ConfluenceActionSupport
    private String reviewPages;
    private PageTree reviewPageTree = new PageTree();
    private String pdfFile;
+   private File pdfContent; // prob should be array of bytes
 
    public void setKey(String s)
    {
       spaceKey = s;
-      reviewSpaceKey = s + "REV";
+      if (reviewSpaceKey == null)
+    	  reviewSpaceKey = s + "REV";
    }
+   public void setReviewSpaceKey(String s) { reviewSpaceKey = s; }
    public void setReviewPath(String s) { reviewPath = s; }
    public void setReviewLabel(String s) { reviewLabel = s; }
    public void setReviewPages(String s)
@@ -230,6 +234,8 @@ public class StartReview extends ConfluenceActionSupport
 
    public void setFile(String s) { pdfFile = s; }
 
+   public void setPdfcontent(File f) { pdfContent = f; }
+
    String logString;
    void log(String s)
    {
@@ -247,6 +253,9 @@ public class StartReview extends ConfluenceActionSupport
          + "<li>Log:<ul>" + logString + "</ul></li>"
          + "<li>"+bootstrapManager.getConfluenceHome()+"</li>"
          + "<li>"+spaceKey+"</li>"
+         + "<li>"+reviewSpaceKey+"</li>"
+         + (pdfContent==null?"<li>pdfContent == null</li>"
+         : "<li><![CDATA["+pdfContent.length() + " : " + pdfContent.getAbsolutePath()+"]]></li>")
          + "<li>"+reviewPath+"</li>"
          + "<li>"+reviewLabel+"</li>"
          + "<li>"+wikiFormatTree(reviewPageTree,"")+"</li>"
@@ -273,7 +282,27 @@ public class StartReview extends ConfluenceActionSupport
    }
 
    public String execute()
-   {
+   {      
+	  try // if a multipart post, try to fetch the uploaded file 
+	  {
+         File f = FileUploadUtils.getSingleFile();
+	
+         if (f != null)
+            pdfContent = f;
+	  }
+	  catch (FileUploadException e)
+	  {
+		  error = e.toString();
+		  return "error";
+	  }
+	  catch (ClassCastException e)
+	  {
+		  // swallow this; assume its a failure to cast to a multipart message one that isn't
+	  }
+	   
+	  if (reviewPath == null || (pdfFile == null && pdfContent == null))
+		 return "input";
+	  
       // FIXME: ugly catch all
       try {
 
@@ -326,6 +355,7 @@ public class StartReview extends ConfluenceActionSupport
          perms.add(SpacePermission.createAnonymousSpacePermission(SpacePermission.VIEWSPACE_PERMISSION, reviewSpace));
          perms.add(SpacePermission.createGroupSpacePermission(SpacePermission.CREATEEDIT_PAGE_PERMISSION, reviewSpace, "confluence-users"));
          perms.add(SpacePermission.createGroupSpacePermission(SpacePermission.CREATE_ATTACHMENT_PERMISSION, reviewSpace, "confluence-users"));
+         perms.add(SpacePermission.createGroupSpacePermission(SpacePermission.REMOVE_ATTACHMENT_PERMISSION, reviewSpace, "confluence-users"));
          perms.add(SpacePermission.createGroupSpacePermission(SpacePermission.COMMENT_PERMISSION, reviewSpace, "confluence-users"));
 
          reviewSpace.setPermissions(perms);
@@ -336,16 +366,17 @@ public class StartReview extends ConfluenceActionSupport
          // be deleted.
          //
          defaultHome = reviewSpace.getHomePage();
-         defaultHome.setContent("");
+         defaultHome.setBodyAsString("");
       }
 
-      String[] tree = reviewPath.substring(1).split("/");
+      if (reviewPath.length() != 0 && reviewPath.charAt(0) == '/')
+    	  reviewPath = reviewPath.substring(1);
+      
+      String[] tree = reviewPath.split("/");
 
       Page reviewPage = null;
 
-      DefaultSaveContext ctx = new DefaultSaveContext();
-      ctx.setUpdateLastModifier(true);
-      ctx.setMinorEdit(true);
+      DefaultSaveContext ctx = new DefaultSaveContext(true, true, false);
 
       Page reviewIndexPage = pageManager.getPage(reviewSpaceKey, "Review Index");
       if (reviewIndexPage == null)
@@ -382,7 +413,7 @@ public class StartReview extends ConfluenceActionSupport
             p = new Page();
             p.setSpace(reviewSpace);
             p.setTitle(s);
-            p.setContent("");
+            p.setBodyAsString("");
             try
             {
                pageManager.saveContentEntity(p, ctx);
@@ -448,27 +479,37 @@ public class StartReview extends ConfluenceActionSupport
       log("reviewHeading = " +reviewHeading);
 
       markReviewedPages(reviewPageTree, Long.toString(reviewPage.getId()), reviewId, date);
-
-      reviewPage.setContent(
-             "h1. " + reviewHeading + "{anchor:"+reviewId+"}\n"
-           + "{section:border=true}\n"
-           + "{column:width=55%}\n"
-           +    "h3. This review includes the following pages\n"
-           +    wikiFormatTree(reviewPageTree, "") + "\n"
-           +    "h3. Review progress\n"
-           +    "{review-progress:id="+reviewId+"}\n"
-           + "{column}\n"
-           + "{column:width=45%}\n"
-           +    "{viewpdf:"+reviewTag+".pdf|width=100%}\n"
-           + "{column}\n"
-           + "{section}\n"
-           + "----\n\n"
-           + existingContent
-           );
+      
+      reviewPage.setBodyAsString(
+    	 "<ac:macro ac:name='anchor'><ac:default-parameter>"+reviewId+"</ac:default-parameter></ac:macro>"
+       + "<h1>" + reviewHeading + "</h1>"
+       + "<ac:macro ac:name='section'><ac:parameter ac:name='border'>true</ac:parameter><ac:rich-text-body>"
+       + "<ac:macro ac:name='column'><ac:parameter ac:name='width'>55%</ac:parameter><ac:rich-text-body>"
+       + (pdfContent==null
+         ?("<h3>This review includes the following pages</h3>"
+          +"<ac:macro ac:name='unmigrated-inline-wiki-markup'><ac:plain-text-body><![CDATA["+wikiFormatTree(reviewPageTree, "")+"]]></ac:plain-text-body></ac:macro>"
+          )
+         :"<h3>Review of non-wiki document.</h3>")
+       + "<h3>Review progress</h3>"
+       + "<ac:macro ac:name='unmigrated-inline-wiki-markup'><ac:plain-text-body><![CDATA[{review-progress:id="+reviewId+"}]]></ac:plain-text-body></ac:macro>"
+       + "</ac:rich-text-body></ac:macro>"
+       + "<ac:macro ac:name='column'><ac:parameter ac:name='width'>45%</ac:parameter><ac:rich-text-body>"
+       + "<ac:macro ac:name='viewpdf'><ac:parameter ac:name='width'>100%</ac:parameter><ac:default-parameter>"+reviewTag+".pdf</ac:default-parameter></ac:macro>"
+       + "</ac:rich-text-body></ac:macro>"
+       + "</ac:rich-text-body></ac:macro>"
+       + "<hr />"
+       + existingContent
+       );
 
       log("content updated");
 
-      File file = new File(pdfFile.replace(bootstrapManager.getWebAppContextPath() + "/download", bootstrapManager.getConfluenceHome()));
+      File file;
+      if (pdfFile != null)
+    	  file = new File(pdfFile.replace(bootstrapManager.getWebAppContextPath() + "/download", bootstrapManager.getConfluenceHome()));
+      else if (pdfContent != null)
+    	  file = pdfContent;
+      else
+    	  return "error";
 
       Attachment attachment = new Attachment(reviewTag+".pdf", "application/pdf", file.length(), "Snapshot for review " + reviewId);
 
@@ -509,7 +550,7 @@ public class StartReview extends ConfluenceActionSupport
       //    System.err.println("X Property: " + pve.getPropertyName());            
       // }
 
-      redirect = "/display/"+reviewSpaceKey+"/"+reviewPage.getTitle();
+      redirect = reviewPage.getUrlPath();
 
       done = true;
 

@@ -1,0 +1,12 @@
+<html>
+ <head>
+  <title>Start PDF Review from File Debug</title>
+  <meta name="decorator" content="atl.popup"/>
+ </head>
+ <body>
+  <div id='main'>
+	   <p>From java: $action.xyz()</p>
+  </div>
+ </body>
+</html>
+

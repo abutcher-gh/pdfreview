@@ -5,6 +5,14 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}" />
     </plugin-info>
 
+    <web-item key="start-pdf-review-from-file" name="Start PDF Review from File" section="system.content.action/primary" weight="110">
+        <label key="Start PDF Review from File" />
+        <link linkId='start-pdf-review-from-file'>/plugins/pdfreview/start-review.action?key=$space.key</link> 
+        <icon height="16" width="16">
+            <link>/images/icons/exp_16.gif</link>
+        </icon>
+    </web-item>
+
     <component-import key="themeSettings">
        <interface>com.atlassian.confluence.plugins.doctheme.Settings</interface>
     </component-import>
@@ -36,6 +44,7 @@
 
 	        <action name="start-review" class="com.jessamine.pdfreview.confluence.StartReview">
                  <param name="RequireSecurityToken">false</param>
+                 <result name="input" type="velocity">/template/jessamine/pdfreview/start-review-from-file.vm</result>
                  <result name="error" type="velocity">/template/jessamine/pdfreview/start-review.vm</result>
                  <!--result name="success" type="velocity">/template/jessamine/pdfreview/start-review.vm</result-->
                  <result name="success" type="redirect">${redirect}</result>
@@ -59,5 +68,12 @@
 
       </package>
    </xwork>
+
+	<web-resource key="pdf-review-resources">
+		<resource type="download" name="pdf-review.js" location="js/pdf-review.js" />
+		<context>atl.general</context>
+	</web-resource>
+
+	<resource key="pdf-review-dialog" type="download" name="pdf-review-dialog.html" location="html/pdf-review-dialog.html" />
 
 </atlassian-plugin>

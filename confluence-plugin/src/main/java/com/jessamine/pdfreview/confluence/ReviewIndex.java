@@ -98,7 +98,7 @@ public class ReviewIndex extends BaseMacro
             if (p != null)
             {
                p = p.getLatestVersion();
-               head = "<a href=\""+p.getUrlPath()+"#"+p.getTitle().replace(" ","")+"-"+id+"\">"+p.getTitle()+"</a>";
+               head = "<a href=\""+settingsManager.getGlobalSettings().getBaseUrl() + p.getUrlPath()+"#"+p.getTitle().replaceAll("[ +]", "")+"-"+id+"\">"+p.getTitle()+"</a>";
             }
             else
             {
