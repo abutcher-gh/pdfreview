@@ -43,6 +43,39 @@ diff -urN 00D28F48.0/atlassian-plugin.xml 00D28F48.1/atlassian-plugin.xml
  	        <action name="doflyingpdf" class="com.atlassian.confluence.extra.flyingpdf.BetterExportSpaceAction">
                  <param name="RequireSecurityToken">true</param>            
  	            <result name="error" type="velocity">/templates/extra/pdfexport/exportspace.vm</result>
+--- confluence-flyingpdf-plugin-2.8\atlassian-plugin.xml	2012-07-15 22:06:22 +0100
++++ confluence-flyingpdf-plugin-2.8\atlassian-plugin.xml	2012-09-05 09:36:15 +0100
+@@ -95,6 +95,18 @@
+         </icon>
+     </web-item>
+ 
++    <!-- Review menu item -->
++    <web-item key="start-pdf-review" name="Start PDF Review" section="system.content.action/primary" weight="100">
++        <label key="Start PDF Review" />
++        <link>/spaces/flyingpdf/flyingpdfreview.action?fromid=$page.id&amp;fromtitle=$page.title&amp;key=$space.key</link> 
++        <icon height="16" width="16">
++            <link>/images/icons/exp_16.gif</link>
++        </icon>
++    </web-item>
++    <!-- End review menu item -->
++
++    <resource key="review-redirector" name="review-redirector.html" type="download" location="templates/extra/pdfexport/review-redirector.html"/>
++
+     <web-item key="configpdfstyle" name="UI for PDF Export Configuration" section="system.space.admin/looknfeel" weight="45">
+         <label key="space.config.pdfexportstyle" />
+         <link>/spaces/flyingpdf/viewpdfstyleconfig.action?key=$space.key</link>
+@@ -162,6 +174,11 @@
+     <xwork name="Export Actions" key="exportactions">
+ 	    <package name="pdf" extends="default" namespace="/spaces/flyingpdf">
+ 	        <default-interceptor-ref name="validatingStack"/>
++	        <action name="flyingpdfreview" class="com.atlassian.confluence.extra.flyingpdf.BetterExportSpaceAction" method="doDefault">
++                 <param name="RequireSecurityToken">false</param>
++                 <result name="input" type="velocity">/templates/extra/pdfexport/reviewspace.vm</result>
++                 <result name="error" type="velocity">/templates/extra/pdfexport/reviewspace.vm</result>
++   	        </action>
+ 	        <action name="flyingpdf" class="com.atlassian.confluence.extra.flyingpdf.BetterExportSpaceAction" method="doDefault">
+                  <param name="RequireSecurityToken">false</param>
+                  <result name="input" type="velocity">/templates/extra/pdfexport/exportspace.vm</result>
 diff -urN 00D28F48.0/com/atlassian/confluence/plugins/flyingpdf/i18n.properties 00D28F48.1/com/atlassian/confluence/plugins/flyingpdf/i18n.properties
 --- 00D28F48.0/com/atlassian/confluence/plugins/flyingpdf/i18n.properties	2011-05-20 04:24:20 +0100
 +++ 00D28F48.1/com/atlassian/confluence/plugins/flyingpdf/i18n.properties	2011-07-20 17:28:42 +0100

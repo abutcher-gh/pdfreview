@@ -38,7 +38,19 @@ rm -rf $DOCTHEME && mkdir -p $DOCTHEME && unzip -o $DOCTHEME_JAR -d $DOCTHEME ||
 FLYINGPDF_VERSION=${FLYINGPDF##*-}
 
 cat $THIS_DIR/flyingpdfreview.diff | sed "s/__PATCH_VERSION/$FLYINGPDF_VERSION/" |
-   (cd $FLYINGPDF && patch -p1) || exit $?
+   (cd $FLYINGPDF && patch -p1)
+   
+# check for the necessary hunks being present in the patched file
+# (this is necessary rather than testing the result of 'patch' above
+# to support a single diff file for multiple flyingpdf versions) 
+#
+set -x
+grep -q "Confluence PDF Export/Review" $FLYINGPDF/atlassian-plugin.xml || exit $?
+grep -q "$FLYINGPDF_VERSION.1"         $FLYINGPDF/atlassian-plugin.xml || exit $?
+grep -q "Review menu item"             $FLYINGPDF/atlassian-plugin.xml || exit $?
+grep -q "review-redirector"            $FLYINGPDF/atlassian-plugin.xml || exit $?
+grep -q "reviewspace.vm"               $FLYINGPDF/atlassian-plugin.xml || exit $?
+set +x
 
 cat $THIS_DIR/doctheme.diff | (cd $DOCTHEME && patch -p1) || exit $?
 
