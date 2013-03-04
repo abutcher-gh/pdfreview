@@ -52,8 +52,11 @@ grep -q "review-redirector"            $FLYINGPDF/atlassian-plugin.xml || exit $
 grep -q "reviewspace.vm"               $FLYINGPDF/atlassian-plugin.xml || exit $?
 set +x
 
-cat $THIS_DIR/doctheme.diff | (cd $DOCTHEME && patch -p1) || exit $?
+cat $THIS_DIR/doctheme.diff | (cd $DOCTHEME && patch -p1) 
 
+set -x
+grep -q "doctheme.Settings" $DOCTHEME/atlassian-plugin.xml || exit $?
+set +x
 
 (cd $FLYINGPDF && zip -r ../$FLYINGPDF-pdfreview.jar *) || exit $?
 (cd $DOCTHEME && zip -r ../$DOCTHEME-pdfreview.jar *) || exit $?

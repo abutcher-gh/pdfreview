@@ -12,3 +12,17 @@
      <web-resource name="Doc Theme Resources" key="resources">
          <resource name="doc-theme.js" type="download" location="doctheme/doc-theme.js" />
      </web-resource>
+--- doctheme-5.0.1/atlassian-plugin.xml	Mon Mar  4 10:05:45 2013
++++ doctheme-5.0.1/atlassian-plugin.xml	Mon Mar  4 10:06:10 2013
+@@ -26,6 +26,11 @@
+         <interface>com.atlassian.confluence.plugins.doctheme.ThemeService</interface>
+     </component>
+ 
++    <component key="themeSettings" name="Theme Settings" class="com.atlassian.confluence.plugins.doctheme.Settings" public="true">
++        <description>Services to store and retrieve theme configuration information.</description>
++        <interface>com.atlassian.confluence.plugins.doctheme.Settings</interface>
++    </component>
++
+     <web-resource name="Doc Theme Resources" key="resources">
+         <transformation extension="js">
+             <transformer key="jsI18n"/>
