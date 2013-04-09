@@ -49,7 +49,7 @@ $(document).ready(function(){
 			return pdfreview_path_prefix;
 		}
 
-		var suggested_review_space = confluenceSpaceKey.attr('content');
+		var suggested_review_space = AJS.params.spaceKey;
 		if (!/REV$/.test(suggested_review_space))
 			suggested_review_space += 'REV';
 		form.find('#reviewSpaceKey').val(suggested_review_space);

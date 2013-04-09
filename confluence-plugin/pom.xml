@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.co.jessamine.confluence</groupId>
     <artifactId>pdfreview</artifactId>
-    <version>0.4beta3</version>
+    <version>0.4beta4</version>
 
     <name>PDF Review for Confluence</name>
     <description>Provides review management via PDF / FDF files</description>
@@ -37,6 +37,12 @@
             <artifactId>confluence</artifactId>
             <version>${confluence.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>connector</artifactId>
+                    <groupId>javax.resource</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.atlassian.confluence.plugin</groupId>
@@ -55,13 +61,13 @@
             <artifactId>nekohtml</artifactId>
             <version>1.9.12</version>
             <scope>test</scope>
-		</dependency>
-		<dependency>
-		    <groupId>com.atlassian.confluence.plugins</groupId>
-		    <artifactId>doctheme</artifactId>
-		    <version>${confluence.version}</version>
-		    <scope>compile</scope>
-		</dependency>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence.plugins</groupId>
+            <artifactId>doctheme</artifactId>
+            <version>${confluence.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
