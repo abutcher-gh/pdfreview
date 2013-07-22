@@ -13,10 +13,6 @@
         </icon>
     </web-item>
 
-    <component-import key="themeSettings">
-       <interface>com.atlassian.confluence.plugins.doctheme.Settings</interface>
-    </component-import>
-
     <macro name="review-progress" class="com.jessamine.pdfreview.confluence.ReviewProgress" key="review-progress">
         <description>Tracks progress of a PDF review.</description>
         <category name="confluence-content"/>

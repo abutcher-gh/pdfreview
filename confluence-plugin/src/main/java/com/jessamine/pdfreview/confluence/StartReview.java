@@ -332,6 +332,7 @@ public class StartReview extends ConfluenceActionSupport
             return "error";
          }
 
+         /*
          // set the space theme to the documentation theme
          // and configure the navigation pane for this space
          //
@@ -349,6 +350,7 @@ public class StartReview extends ConfluenceActionSupport
              + "h2. Review index\n"
              + "{review-index:page=Review Index}\n"
              , false));
+         */
 
          List<SpacePermission> perms = new ArrayList<SpacePermission>();
 
