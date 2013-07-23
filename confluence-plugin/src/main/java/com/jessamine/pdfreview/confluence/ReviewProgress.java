@@ -105,8 +105,24 @@ public class ReviewProgress extends BaseMacro {
 				      || status == ReviewStatus.Completed;
 		User user = AuthenticatedUserThreadLocal.getUser();
 		List<Attachment> attachments = attachmentManager.getAttachments(page);
-		boolean hasComments = attachments.size() > 1;
+		StringBuilder commentTableBody = new StringBuilder();
+		
+		for (Attachment a : attachments) {
+			String name = a.getFileName();
 
+			if (!name.endsWith(".fdf"))
+				continue;
+			if (!name.startsWith(tag))
+				continue;
+
+			commentTableBody.append("<tr>");
+			commentTableBody.append("<td class='confluenceTd'>" + a.getLastModifierName() + "</td>");
+			commentTableBody.append("<td class='confluenceTd'>" + a.getLastModificationDate() + "</td>");
+			commentTableBody.append("</tr>");
+		}
+		
+		boolean hasComments = commentTableBody.length() > 0;
+		
 		HttpServletRequest request = ServletActionContext.getRequest();
 		if (request != null) {
 			for (Cookie c : request.getCookies()) {
@@ -122,7 +138,7 @@ public class ReviewProgress extends BaseMacro {
 		String actionText = null;
 
 		if (closed) {
-			participate = "<p>This review is closed.  ";
+			participate = "<p>This review is <strong>closed</strong>.  ";
 			if (user != null && user.getName().equals(owner))
 				participate += "As the owner you may <a href='"
 						+ startReviewURL
@@ -166,13 +182,13 @@ public class ReviewProgress extends BaseMacro {
 		}
 
 		if (actionText != null)
-			participate += "<h3><a id='" + tag
+			participate += "<h3 class='review-action-message'><a id='" + tag
 					+ "' href=\"pdfreview:"	+ webdavUrl
 					+ "?tag=" + tag
 					+ "&amp;user=" + user.getName()
 					+ "&amp;page=" + page.getId()
 					+ authcookie + token
-					+ "\"><u>" + actionText + "</u></a></h3>"
+					+ "\">" + actionText + "</a></h3>"
 					+ "<p><strong>Note:</strong> If the link above doesn't attempt to "
 					+ "start the desktop review tool then you need to install the "
 					+ "<tt>pdfreview</tt> URL scheme and scripts from <a href=\""
@@ -197,27 +213,11 @@ public class ReviewProgress extends BaseMacro {
 			rc.append("<th class='confluenceTh'>Date</th>");
 			rc.append("</thead>\n");
 			rc.append("<tbody>\n");
-		} else {
-			rc.append("<div class='aui-message info'>There are no review comments as yet.</div>");
-		}
-
-		for (Attachment a : attachments) {
-			String name = a.getFileName();
-
-			if (!name.endsWith(".fdf"))
-				continue;
-			if (!name.startsWith(tag))
-				continue;
-
-			rc.append("<tr>");
-			rc.append("<td class='confluenceTd'>" + a.getLastModifierName() + "</td>");
-			rc.append("<td class='confluenceTd'>" + a.getLastModificationDate() + "</td>");
-			rc.append("</tr>");
-		}
-
-		if (hasComments) {
+			rc.append(commentTableBody.toString());
 			rc.append("</tbody>\n");
 			rc.append("</table></div>\n");
+		} else {
+			rc.append("<div class='aui-message info'>There are no review comments as yet.</div>");
 		}
 
 		rc.append("<div class='aui-message'>");

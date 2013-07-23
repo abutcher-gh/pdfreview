@@ -91,6 +91,7 @@
 
 	<web-resource key="pdf-review-resources">
 		<resource type="download" name="pdf-review.js" location="js/pdf-review.js" />
+		<resource type="download" name="pdf-review.css" location="css/pdf-review.css" />
 		<context>atl.general</context>
 	</web-resource>
 
