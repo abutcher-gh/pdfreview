@@ -48,32 +48,44 @@ public class ReviewStatus extends BaseMacro {
 		}
 	}
 
-	public static void updateStatus(ContentPropertyManager cpm,
+	public static boolean updateStatus(ContentPropertyManager cpm,
 			Page reviewIndexPage, User user, String reviewId, int newStatus) {
-		updateStatus(cpm, reviewIndexPage, user, reviewId, newStatus, null,
-				false);
+		return updateStatus(cpm, reviewIndexPage, user, reviewId, newStatus,
+				null, false);
 	}
 
-	public static void updateStatus(ContentPropertyManager cpm,
+	public static boolean updateStatus(ContentPropertyManager cpm,
 			Page reviewIndexPage, User user, String reviewId, int newStatus,
 			Date date) {
-		updateStatus(cpm, reviewIndexPage, user, reviewId, newStatus, date,
-				false);
+		return updateStatus(cpm, reviewIndexPage, user, reviewId, newStatus,
+				date, false);
 	}
 
-	public static void updateStatus(ContentPropertyManager cpm,
+	public static boolean updateStatus(ContentPropertyManager cpm,
 			Page reviewIndexPage, User user, String reviewId, int newStatus,
 			Date date, boolean create) {
 		if (user == null)
-			return;
+			return false;
 
-		if (getStatus(cpm, reviewIndexPage, reviewId) == newStatus)
-			return;
+		int oldStatus = getStatus(cpm, reviewIndexPage, reviewId);
+		if (oldStatus == newStatus)
+			return true;
+
+		// allow anyone to comment on the review (transition
+		// from 'submitted' or 're-opened' to 'under review')
+		boolean commentTransition = newStatus == UnderReview
+				&& (oldStatus == Submitted || oldStatus == ReOpened);
+
+		// only allow the owner to perform other transitions
+		if (!commentTransition)
+			if (!user.getName()
+					.equals(getOwner(cpm, reviewIndexPage, reviewId)))
+				return false;
 
 		String current = cpm.getTextProperty(reviewIndexPage, "pdfreview."
 				+ reviewId + ".state");
 		if (current == null && create == false)
-			return;
+			return false;
 
 		if (date == null)
 			date = new Date();
@@ -84,6 +96,14 @@ public class ReviewStatus extends BaseMacro {
 			updated += "," + current;
 		cpm.setTextProperty(reviewIndexPage,
 				"pdfreview." + reviewId + ".state", updated);
+
+		return true;
+	}
+
+	public static String getOwner(ContentPropertyManager cpm,
+			Page reviewIndexPage, String reviewId) {
+		return cpm.getTextProperty(reviewIndexPage, "pdfreview." + reviewId
+				+ ".owner");
 	}
 
 	public static int getStatus(ContentPropertyManager cpm,
@@ -205,8 +225,8 @@ public class ReviewStatus extends BaseMacro {
 		this.contentPropertyManager = contentPropertyManager;
 	}
 
-	public String execute(@SuppressWarnings("rawtypes") Map params, String body, RenderContext renderContext)
-			throws MacroException {
+	public String execute(@SuppressWarnings("rawtypes") Map params,
+			String body, RenderContext renderContext) throws MacroException {
 		PageContext pageContext = (PageContext) renderContext;
 		Page page = (Page) pageContext.getEntity();
 

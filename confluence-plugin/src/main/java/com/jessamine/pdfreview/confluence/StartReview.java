@@ -14,6 +14,7 @@ import com.atlassian.bandana.BandanaManager;
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.core.ContentPropertyManager;
 import com.atlassian.confluence.core.DefaultSaveContext;
+import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.pages.Page;
@@ -35,6 +36,7 @@ public class StartReview extends ConfluenceActionSupport {
 	private AttachmentManager attachmentManager;
 	private SpaceManager spaceManager;
 	private ContentPropertyManager contentPropertyManager;
+
 	StartReview(BootstrapManager bootstrapManager, PageManager pageManager,
 			AttachmentManager attachmentManager, SpaceManager spaceManager,
 			ContentPropertyManager contentPropertyManager,
@@ -73,6 +75,24 @@ public class StartReview extends ConfluenceActionSupport {
 	private String pdfFile;
 	private File pdfContent; // prob should be array of bytes
 
+	// status update
+	private long updateReviewIndex = 0;
+	private String updateReviewId;
+	private int newStatus;
+
+	public void setReviewIndex(long pageId) {
+		updateReviewIndex = pageId;
+	}
+
+	public void setReviewId(String reviewId) {
+		updateReviewId = reviewId;
+	}
+
+	public void setNewStatus(int status) {
+		newStatus = status;
+	}
+
+	// initial creation
 	public void setKey(String s) {
 		spaceKey = s;
 		if (reviewSpaceKey == null)
@@ -230,9 +250,6 @@ public class StartReview extends ConfluenceActionSupport {
 
 		Date date = new Date();
 
-		ReviewStatus.updateStatus(contentPropertyManager, reviewIndexPage,
-				user, reviewId, state, date, /* create= */true);
-
 		contentPropertyManager.setStringProperty(reviewIndexPage, "pdfreview."
 				+ reviewId + ".page", Long.toString(reviewPage.getId()));
 		if (reviewPages != null && !reviewPages.isEmpty())
@@ -243,6 +260,9 @@ public class StartReview extends ConfluenceActionSupport {
 		contentPropertyManager.setStringProperty(reviewIndexPage, "pdfreview."
 				+ reviewId + ".created",
 				ReviewStatus.tagDateFormat.format(date));
+
+		ReviewStatus.updateStatus(contentPropertyManager, reviewIndexPage,
+				user, reviewId, state, date, /* create= */true);
 
 		return reviewId;
 	}
@@ -261,31 +281,24 @@ public class StartReview extends ConfluenceActionSupport {
 		logString += "<li>" + s + "</li>";
 	}
 
-	public String xyz() {
+	public String diagnosticsHtml() {
 		User user = AuthenticatedUserThreadLocal.getUser();
-		String greeting = "Flurb";
-		if (user != null) {
-			greeting = "Hello " + user.getFullName() + "<br><br>";
-		}
-		return "<ul>" + "<li>Log:<ul>"
-				+ logString
-				+ "</ul></li>"
-				+ "<li>"
-				+ bootstrapManager.getConfluenceHome()
-				+ "</li>"
-				+ "<li>"
-				+ spaceKey
-				+ "</li>"
-				+ "<li>"
-				+ reviewSpaceKey
-				+ "</li>"
+		String username = "Unknown user";
+		if (user != null)
+			username = user.getName();
+		return "<ul>"
+				+ "<li>username = " + username + "</li>"
+				+ "<li>spaceKey = "	+ spaceKey + "</li>"
+				+ "<li>reviewSpaceKey = " + reviewSpaceKey + "</li>"
 				+ (pdfContent == null ? "<li>pdfContent == null</li>"
-						: "<li><![CDATA[" + pdfContent.length() + " : "
-								+ pdfContent.getAbsolutePath() + "]]></li>")
-				+ "<li>" + reviewPath + "</li>" + "<li>" + reviewLabel
-				+ "</li>" + "<li>" + wikiFormatTree(reviewPageTree, "")
-				+ "</li>" + "<li>" + pdfFile + "</li>" + "<li>" + done
-				+ "</li>" + "<li>" + greeting + "</li>" + "</ul>";
+						: "<li>pdfContent = (" + pdfContent.length()
+								+ " bytes from " + pdfContent.getAbsolutePath()
+								+ ")</li>")
+				+ "<li>reviewPath = " + reviewPath + "</li>"
+				+ "<li>reviewLabel = " + reviewLabel + "</li>"
+				+ "<li>done = " + done + "</li>"
+				+ "<li>logString:<ul>" + logString + "</ul></li>"
+				+ "</ul>";
 	}
 
 	private boolean done = false;
@@ -314,6 +327,38 @@ public class StartReview extends ConfluenceActionSupport {
 		} catch (ClassCastException e) {
 			// swallow this; assume its a failure to cast to a multipart message
 			// one that isn't
+		}
+
+		if (updateReviewIndex != 0) {
+			User user = AuthenticatedUserThreadLocal.getUser();
+			if (user == null) {
+				error = "Not authenticated.  Cannot proceed.";
+				return "error";
+			}
+			Page reviewIndexPage = pageManager.getPage(updateReviewIndex);
+			if (reviewIndexPage == null) {
+				error = "Cannot find review index page " + updateReviewIndex;
+				return "error";
+			}
+			AbstractPage reviewPage = ReviewIndex.getLatestReviewPage(
+					contentPropertyManager, pageManager, reviewIndexPage,
+					updateReviewId);
+			if (reviewPage == null) {
+				error = "Cannot find review page with id " + updateReviewId
+						+ " via " + reviewIndexPage.getUrlPath();
+				return "error";
+			}
+			if (!ReviewStatus.updateStatus(contentPropertyManager,
+					reviewIndexPage, user, updateReviewId, newStatus)) {
+				error = "Failed to transition review '"
+						+ reviewPage.getDisplayTitle() + "' to '"
+						+ ReviewStatus.codeToString(newStatus) + "' as user '"
+						+ user.getName() + "'";
+				return "error";
+			}
+			done = true;
+			redirect = reviewPage.getUrlPath();
+			return "success";
 		}
 
 		if (reviewPath == null || (pdfFile == null && pdfContent == null))

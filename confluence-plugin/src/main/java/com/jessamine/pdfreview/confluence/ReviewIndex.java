@@ -40,23 +40,38 @@ public class ReviewIndex extends BaseMacro {
 		return RenderMode.NO_RENDER;
 	}
 
-	public String execute(@SuppressWarnings("rawtypes") Map params, String body, RenderContext renderContext)
-			throws MacroException {
+	public static AbstractPage getLatestReviewPage(ContentPropertyManager cpm,
+			PageManager pm, Page reviewIndex, String reviewId) {
+		try {
+			String pageId = cpm.getStringProperty(reviewIndex, "pdfreview."
+					+ reviewId + ".page");
+			AbstractPage p = pm.getPage(Long.parseLong(pageId));
+			if (p == null)
+				return p;
+			return p.getLatestVersion();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public String execute(@SuppressWarnings("rawtypes") Map params,
+			String body, RenderContext renderContext) throws MacroException {
 		PageContext pageContext = (PageContext) renderContext;
-		Page page = (Page) pageContext.getEntity();
+		Page reviewIndex = (Page) pageContext.getEntity();
 
 		{
 			String pageOverride = (String) params.get("page");
 			if (pageOverride != null) {
-				Page p = pageManager.getPage(page.getSpaceKey(), pageOverride);
+				Page p = pageManager.getPage(reviewIndex.getSpaceKey(),
+						pageOverride);
 				if (p != null)
-					page = p;
+					reviewIndex = p;
 			}
 		}
 
 		StringBuilder rc = new StringBuilder();
 
-		String maxId = contentPropertyManager.getStringProperty(page,
+		String maxId = contentPropertyManager.getStringProperty(reviewIndex,
 				"pdfreview.maxId");
 
 		if (maxId == null || maxId.isEmpty())
@@ -68,43 +83,41 @@ public class ReviewIndex extends BaseMacro {
 		for (int i = max; i > 0; --i) {
 			String id = Integer.toString(i);
 
-			rc.append("<li value='" + id + "'>");
-
 			try {
-				String head;
-				String pageId = contentPropertyManager.getStringProperty(page,
-						"pdfreview." + id + ".page");
-				AbstractPage p = pageManager.getPage(Long.parseLong(pageId));
-				if (p != null) {
-					p = p.getLatestVersion();
-					head = "<a href=\""
-							+ settingsManager.getGlobalSettings().getBaseUrl()
-							+ p.getUrlPath() + "#"
-							+ p.getTitle().replaceAll("[ +]", "") + "-" + id
-							+ "\">" + p.getTitle() + "</a>";
-				} else {
-					head = pageId;
-				}
+				AbstractPage p = getLatestReviewPage(contentPropertyManager,
+						pageManager, reviewIndex, id);
+				if (p == null)
+					continue;
 
-				String owner = contentPropertyManager.getStringProperty(page,
-						"pdfreview." + id + ".owner");
-				String created = contentPropertyManager.getStringProperty(page,
-						"pdfreview." + id + ".created");
+				String link = "<a href=\""
+						+ settingsManager.getGlobalSettings().getBaseUrl()
+						+ p.getUrlPath() + "#"
+						+ p.getTitle().replaceAll("[ +]", "") + "-" + id
+						+ "\">" + p.getTitle() + "</a>";
 
-				rc.append("<strong>" + head + "</strong>");
+				String owner = contentPropertyManager.getStringProperty(
+						reviewIndex, "pdfreview." + id + ".owner");
+				String created = contentPropertyManager.getStringProperty(
+						reviewIndex, "pdfreview." + id + ".created");
+
+				rc.append("<li value='" + id + "'>");
+				rc.append("<strong>" + link + "</strong>");
 				rc.append("<div style='font-size: 80%'>");
 				rc.append("<strong>Created:</strong> " + created + " (" + owner
 						+ ")<br/>");
 				rc.append("<strong>Changelog:</strong> "
-						+ contentPropertyManager.getTextProperty(page,
+						+ contentPropertyManager.getTextProperty(reviewIndex,
 								"pdfreview." + id + ".state") + "<br/>\n");
 				rc.append("<strong>Status:</strong> "
 						+ ReviewStatus.codeToString(ReviewStatus.getStatus(
-								contentPropertyManager, page, id)) + "<br/>\n");
+								contentPropertyManager, reviewIndex, id))
+						+ "<br/>\n");
+				rc.append("</div></li>");
 			} catch (Exception e) {
-				rc.append("<strong>Error:</strong> " + e.toString() + "<br/>\n");
+				rc.append("<li value='" + id + "'>");
+				rc.append("<strong>Error:</strong> " + e.toString());
+				rc.append("</li>");
 			}
-			rc.append("</div></li>");
 		}
 		rc.append("</ol></p>");
 

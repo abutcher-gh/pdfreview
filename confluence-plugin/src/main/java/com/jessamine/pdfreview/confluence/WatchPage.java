@@ -85,8 +85,9 @@ public class WatchPage extends ConfluenceActionSupport {
 					return "error";
 				}
 
-				ReviewStatus.updateStatus(contentPropertyManager, indexPage,
-						user, reviewId, ReviewStatus.UnderReview);
+				if (!ReviewStatus.updateStatus(contentPropertyManager,
+						indexPage, user, reviewId, ReviewStatus.UnderReview))
+					return "error";
 
 				return "success";
 			} else

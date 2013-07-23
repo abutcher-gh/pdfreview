@@ -1,23 +1,20 @@
 <html>
  <head>
-  <title>Test</title>
+  <title>Start PDF Review diagnostics</title>
   <meta name="decorator" content="atl.general"/>
  </head>
  <body>
   <div id='main'>
-   <p>From java: $action.redirect</p>
-   <p>From java: $!action.error</p>
-   <p>From java: $action.getServletRequest().getQueryString()</p>
-   <p>From velocity: $req.getQueryString()</p>
-   <p>From java: $action.getServletRequest().getQueryString()</p>
-   <p>From java: $action.getServletRequest()</p>
-   <p>From velocity: $req.getParameterNames()</p>
-   <p>From java: $action.xyz()</p>
-   <p>From java: ${action.xyz()}</p>
-   <p>From java: ${action.xyz}()</p>
-   <p>From java: $action.getParameters().toString()</p>
-   <p>From java: $action.getFile()</p>
-   <p>From java: $action.file</p>
+#if ($action.error)
+  <div class='aui-message error'>
+  <strong>Error:</strong> $action.error
+  </div>
+#end
+  <ul>
+   <li>Redirect: '$!action.redirect'</li>
+   <li>Query string: '$req.getQueryString()'</li>
+   <li>Action info: $action.diagnosticsHtml()</li>
+  </ul>
   </div>
  </body>
 </html>
