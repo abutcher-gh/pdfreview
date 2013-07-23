@@ -13,6 +13,30 @@
         </icon>
     </web-item>
 
+    <component-import key="sidebar-link-service" interface="com.atlassian.confluence.plugins.ia.service.SidebarLinkService" />
+
+    <web-item key="sidebar-review-history" name="Sidebar Review History" section="system.space.sidebar/main-links" weight="30">
+        <label key="Review History"/>
+        <link id="sidebar-review-history-link"></link>
+        <styleClass>sidebar-review-history</styleClass>
+        <condition class="com.jessamine.pdfreview.confluence.HasReviewsCondition" />
+    </web-item>
+    <web-resource key="sidebar-review-history-resources">
+        <resource type="download" name="sidebar-review-history.css" location="css/sidebar-review-history.css"/>
+        <context>main</context>
+    </web-resource>
+
+    <web-item key="sidebar-review-index" name="Sidebar Review Index" section="system.space.sidebar/main-links" weight="30">
+        <label key="Review Index"/>
+        <link id="sidebar-review-index"></link>
+        <styleClass>sidebar-review-index</styleClass>
+        <condition class="com.jessamine.pdfreview.confluence.IsReviewSpace" />
+    </web-item>
+    <web-resource key="sidebar-review-index-resources">
+        <resource type="download" name="sidebar-review-index.css" location="css/sidebar-review-index.css"/>
+        <context>main</context>
+    </web-resource>
+
     <macro name="review-progress" class="com.jessamine.pdfreview.confluence.ReviewProgress" key="review-progress">
         <description>Tracks progress of a PDF review.</description>
         <category name="confluence-content"/>
