@@ -345,23 +345,6 @@ public class StartReview extends ConfluenceActionSupport {
 					return "error";
 				}
 
-				/*
-				 * // set the space theme to the documentation theme // and
-				 * configure the navigation pane for this space //
-				 * themeManager.setSpaceTheme(reviewSpaceKey,
-				 * "com.atlassian.confluence.plugins.doctheme:documentation");
-				 * 
-				 * bandanaManager.setValue( new
-				 * ConfluenceBandanaContext(reviewSpaceKey),
-				 * "com.atlassian.confluence.plugins.doctheme", new
-				 * com.atlassian.confluence.plugins.doctheme.Settings( "", "",
-				 * "" + "{livesearch:spaceKey="+reviewSpaceKey+"}\n" +
-				 * "h2. Review page tree\n" +
-				 * "{pagetree:root=Home|searchbox=false}\n" +
-				 * "h2. Review index\n" + "{review-index:page=Review Index}\n" ,
-				 * false));
-				 */
-
 				List<SpacePermission> perms = new ArrayList<SpacePermission>();
 
 				perms.add(SpacePermission.createAnonymousSpacePermission(
@@ -436,13 +419,6 @@ public class StartReview extends ConfluenceActionSupport {
 						log("Tree creation " + reviewPath + " failed at page '"
 								+ s + "'. " + ex.toString());
 					}
-					// catch (HibernateSystemException ex) {
-					// PropertyValueException pve = (PropertyValueException)
-					// ex.getCause();
-					// System.err.println("Class: " +
-					// pve.getPersistentClass().getName());
-					// System.err.println("Property: " + pve.getPropertyName());
-					// }
 					if (reviewPage != null) {
 						reviewPage.addChild(p);
 						pageManager.saveContentEntity(reviewPage, ctx);
@@ -570,14 +546,6 @@ public class StartReview extends ConfluenceActionSupport {
 						+ "'.  " + ex.toString());
 				return "error";
 			}
-			// catch (HibernateSystemException ex)
-			// {
-			// PropertyValueException pve = (PropertyValueException)
-			// ex.getCause();
-			// System.err.println("X Class: " +
-			// pve.getPersistentClass().getName());
-			// System.err.println("X Property: " + pve.getPropertyName());
-			// }
 
 			redirect = reviewPage.getUrlPath();
 

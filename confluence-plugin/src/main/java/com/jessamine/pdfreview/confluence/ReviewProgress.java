@@ -102,11 +102,6 @@ public class ReviewProgress extends BaseMacro {
 			}
 			if (!authcookie.isEmpty())
 				authcookie = "&amp;cookie=" + authcookie;
-
-			// token = new
-			// com.atlassian.xwork.SimpleXsrfTokenGenerator().generateToken(req);
-			// if (token != null && !token.isEmpty())
-			// token = "&amp;token=" + token;
 		}
 
 		// get the currently logged in user and display his name
@@ -140,8 +135,6 @@ public class ReviewProgress extends BaseMacro {
 		rc.append("<thead>\n");
 		rc.append("<th class='confluenceTh'>Author</th>");
 		rc.append("<th class='confluenceTh'>Date</th>");
-		// rc.append("<th class='confluenceTh'>Time spent</th>");
-		// rc.append("<th class='confluenceTh'>Comment</th>");
 		rc.append("</thead>\n");
 		rc.append("<tbody>\n");
 
@@ -160,8 +153,6 @@ public class ReviewProgress extends BaseMacro {
 					+ "</td>");
 			rc.append("<td class='confluenceTd'>" + a.getLastModificationDate()
 					+ "</td>");
-			// rc.append("<td class='confluenceTd'>unspecified</td>");
-			// rc.append("<td class='confluenceTd'>"+a.getComment()+"</td>");
 			rc.append("</tr>");
 		}
 

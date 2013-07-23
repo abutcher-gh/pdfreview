@@ -108,38 +108,6 @@ public class ReviewIndex extends BaseMacro {
 		}
 		rc.append("</ol></p>");
 
-		// rc.append("<div class='table-wrap'><table class='confluenceTable'>\n");
-		// rc.append("<thead>\n");
-		// rc.append("<th class='confluenceTh'>Author</th>");
-		// rc.append("<th class='confluenceTh'>Date</th>");
-		// //rc.append("<th class='confluenceTh'>Time spent</th>");
-		// //rc.append("<th class='confluenceTh'>Comment</th>");
-		// rc.append("</thead>\n");
-		// rc.append("<tbody>\n");
-
-		// List<Attachment> attachments =
-		// attachmentManager.getAttachments(page);
-
-		// for (Attachment a : attachments)
-		// {
-		// String name = a.getFileName();
-
-		// if (!name.endsWith(".fdf"))
-		// continue;
-		// if (!name.startsWith(tag))
-		// continue;
-
-		// rc.append("<tr>");
-		// rc.append("<td class='confluenceTd'>"+a.getLastModifierName()+"</td>");
-		// rc.append("<td class='confluenceTd'>"+a.getLastModificationDate()+"</td>");
-		// //rc.append("<td class='confluenceTd'>unspecified</td>");
-		// //rc.append("<td class='confluenceTd'>"+a.getComment()+"</td>");
-		// rc.append("</tr>");
-		// }
-
-		// rc.append("</tbody>\n");
-		// rc.append("</table></div>\n");
-
 		return rc.toString();
 	}
 }
