@@ -433,7 +433,7 @@ public class StartReview extends ConfluenceActionSupport {
 				reviewIndexPage = new Page();
 				reviewIndexPage.setSpace(reviewSpace);
 				reviewIndexPage.setTitle("Review Index");
-				reviewIndexPage.setContent("{review-index}");
+				reviewIndexPage.setBodyAsString("<ac:structured-macro ac:name=\"review-index\"/>");
 				try {
 					pageManager.saveContentEntity(reviewIndexPage, ctx);
 				} catch (Exception ex) {

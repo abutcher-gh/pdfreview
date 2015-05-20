@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.co.jessamine.confluence</groupId>
     <artifactId>pdfreview</artifactId>
-    <version>0.5</version>
+    <version>0.6</version>
 
     <name>PDF Review for Confluence</name>
     <description>Provides review management via PDF / FDF files</description>
@@ -93,9 +93,9 @@
     </build>
 
     <properties>
-        <confluence.version>5.1.4</confluence.version>
-        <confluence.data.version>5.1.4</confluence.data.version>
-        <amps.version>4.2.0</amps.version>
+        <confluence.version>5.7.1</confluence.version>
+        <confluence.data.version>5.7.1</confluence.data.version>
+        <amps.version>5.0.13</amps.version>
     </properties>
 
 </project>
