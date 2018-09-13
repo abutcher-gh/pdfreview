@@ -270,7 +270,7 @@ if time_spent_secs > 0 then
    out.Close
    set out = nothing
    ' run headless for export
-   sh.Run "%VIEWER% ""/runjs:newinst&showui=no&log=yes"" """ & comment_script & """ """ & pdffile & """", 1, true
+   sh.Run """%VIEWER%"" ""/runjs:newinst&showui=no&log=yes"" """ & comment_script & """ """ & pdffile & """", 1, true
 
 else
    wscript.echo "No comments added"
