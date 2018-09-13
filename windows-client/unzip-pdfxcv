@@ -1,0 +1,13 @@
+// vim: ft=javascript
+var shell = new ActiveXObject('Shell.Application');
+var fso = new ActiveXObject("Scripting.FileSystemObject");
+var path = WScript.Arguments.Item(0);
+var folder = shell.NameSpace(path);
+if (folder == null) {
+  WScript.Echo("Not a valid [zipped] folder: " + path);
+  WScript.Quit(1);
+}
+var files = folder.Items();
+for (var i = 0; i < files.Count; ++i)
+  if (files.Item(i).Name.toLowerCase() === 'pdfxcview.exe')
+    shell.NameSpace(fso.GetParentFolderName(path)).CopyHere(files.Item(i), 0x14 /*overwrite no confirm*/);

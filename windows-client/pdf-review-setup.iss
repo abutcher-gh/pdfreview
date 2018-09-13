@@ -52,8 +52,8 @@ SolidCompression=yes
 Source: "pdf-review.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: "pdf-review.cmd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "install-pdf-xchange-viewer.cmd"; DestDir: "{app}"; Flags: ignoreversion
-;Source: "pocket-xmlrpc\*.dll"; DestDir: "{app}\pocket-xmlrpc"; Flags: regserver 32bit
-;Source: "pocket-xmlrpc\license.txt"; DestDir: "{app}\pocket-xmlrpc"
+Source: "fetch-uri"; DestDir: "{app}"; Flags: ignoreversion
+Source: "unzip-pdfxcv"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"

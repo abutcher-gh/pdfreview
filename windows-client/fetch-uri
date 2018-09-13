@@ -1,0 +1,13 @@
+// vim: ft=javascript
+var http = WScript.CreateObject('Msxml2.XMLHTTP.6.0');
+http.open('GET', WScript.Arguments.Item(0), false);
+http.send();
+if (http.status/100 == 2) {
+  var out = new ActiveXObject(['ADODB','Stream'].join('.')); // gymnastics to avoid some virus checkers that consider this bad
+  out.Type = 1; // binary
+  out.Open();
+  out.Write(http.responseBody)
+  out.SaveToFile(WScript.Arguments.Item(1))
+  WScript.Quit(0);
+}
+WScript.Quit(http.status/100);

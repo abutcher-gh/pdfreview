@@ -1,6 +1,6 @@
 ' read by installer script and used for
 ' interface validation against server
-PDFReviewClientVersion = 0.2
+PDFReviewClientVersion = 0.3
 
 ' Utilities
 '==============================================================================
@@ -254,7 +254,7 @@ time_spent_mins = 0
 out.Close
 set out = nothing
 ' run interactive to allow user update
-sh.Run "%VIEWER% ""/runjs:newinst&showui=yes&log=yes"" """ & comment_script & """ """ & pdffile & """", 1, true
+sh.Run """%VIEWER%"" ""/runjs:newinst&showui=yes&log=yes"" """ & comment_script & """ """ & pdffile & """", 1, true
 Set baseAnnot = fso.GetFile(base_fdf)
 Set newPdf = fso.GetFile(pdffile)
 time_spent_secs = DateDiff("s", baseAnnot.DateLastModified, newPdf.DateLastModified)

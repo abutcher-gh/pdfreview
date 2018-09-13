@@ -1,32 +1,31 @@
 @echo off
 
-setlocal EnableExtensions EnableDelayedExpansion
-
 
 set PROCESSOR | %SystemRoot%\system32\find "64" >NUL
-if errorlevel 1 (
-   set ARCH=x86
-   set APPID=3A6F4A31-8CFD-46B4-8385-E1F384DB121E
-   set REG=reg
-) else (
-   set ARCH=x64
-   set APPID=9ED333F8-3E6C-4A38-BAFA-728454121CDA
-   set REG=%WINDIR%\sysnative\reg
+set REG=reg
+if not errorlevel 1 (
+   if %PROCESSOR_ARCHITECTURE% == x86 (
+      set REG=%WINDIR%\sysnative\reg
+   )
 )
 
 
-:: Fetch Xchange Viewer and install if not present.
+setlocal EnableExtensions EnableDelayedExpansion
+
+
+:: Fetch Xchange Viewer and extract locally if not installed.
 :: Don't make default or plug in to browser, just user utility.
 call :CheckXchange
-if errorlevel 1 call :InstallXchange
+if errorlevel 1 call :FetchPDFXchangeViewer
 
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Main review script
 
-for /f "tokens=1,2,*" %%i in ('%REG% query "HKLM\SOFTWARE\Tracker Software\PDFViewer" /v InstallPath') do (set VIEWERDIR=%%~sk)
+set "VIEWERDIR=%LOCALAPPDATA%\PDF Review\"
+(for /f "tokens=1,2,*" %%i in ('%REG% query "HKLM\SOFTWARE\Tracker Software\PDFViewer" /v InstallPath') do (set "VIEWERDIR=%%~k")) 2>NUL
 
-(endlocal & set VIEWER=%VIEWERDIR%PDFXCview.exe)
+(endlocal & set "VIEWER=%VIEWERDIR%PDFXCview.exe")
 
 exit /b 0
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -37,52 +36,44 @@ exit /b 0
 ::
 :CheckXchange
 ::
-%REG% query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{%APPID%}" /v DisplayVersion >NUL 2>NUL
+%REG% query "HKLM\SOFTWARE\Tracker Software\PDFViewer" /v InstallPath >NUL 2>NUL && exit /b 0
+if exist "%LOCALAPPDATA%\PDF Review\PDFXCView.exe" exit /b 0
 :: 
-exit /b
+exit /b 1
 
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::
-:InstallXchange
+:FetchPDFXchangeViewer
 ::
 echo.
-echo.  Xchange Viewer not found, installing...
+echo.  PDF Xchange Viewer not found, attempting to fetch portable version...
 echo.
 :RetryInstallXchange
-start /wait msiexec /i "http://c1236872.r72.cf0.rackcdn.com/PXCViewer_%ARCH%.msi" ADDLOCAL="F_Viewer" ASSOC="0" SHOWINBROWSERS="0" CREATEDESKTOPICON="0" /passive /norestart
-if errorlevel 1 (
-
-   echo.  Installation failed.
-   echo.
-
-   set /p "YN=> Do you want to review Internet Options? [y/n] "
-   if :!YN! == :y (
-      echo.
-      echo.  Starting Internet Options Control Panel...
-      echo.
-      start /wait inetcpl.cpl
-   )
-
-   set /p "YN=> Attempt install again? [y/n] "
-   if :!YN! == :y goto :RetryInstallXchange
-)
-
+mkdir "%LOCALAPPDATA%\PDF Review" 2>NUL
+del "%LOCALAPPDATA%\PDF Review\pdfxcv-portable.zip" 2>NUL
+wscript /e:JScript "%~dp0fetch-uri" "http://downloads.pdf-xchange.com/PDFX_Vwr_Port.zip" "%LOCALAPPDATA%\PDF Review\pdfxcv-portable.zip"
+wscript /e:JScript "%~dp0unzip-pdfxcv" "%LOCALAPPDATA%\PDF Review\pdfxcv-portable.zip"
 call :CheckXchange
 if errorlevel 1 (
    echo.
-   echo.  Xchange is not installed.  Review cannot proceed.
+   echo.  PDF Xchange View could not be installed automatically on your system.
+   echo.  
+   echo.  Review cannot proceed without it.
    echo.
+   echo.  Please install manually from https://www.tracker-software.com/product/pdf-xchange-viewer
+   echo.
+   :: set default prefs here as user is presumably only installing for this use case.
+   call :SetDefaultPrefs
    pause
    exit 1
 )
 
-:: set default prefs
+:SetDefaultPrefs
 (
-%REG% add "HKCU\Software\Tracker Software\PDFViewer\Prompts\ConfirmMakeDefaultPDFViewer"  /v Show /d 0 /f
-%REG% add "HKCU\Software\Tracker Software\PDFViewer\Prompts\ConfirmMakeDefaultPDFViewer"  /v UserChoice /d 7 /f
+%REG% add "HKCU\Software\Tracker Software\PDFViewer\Prompts\ConfirmMakeDefaultPDFViewer"  /v Show /t REG_DWORD /d 0 /f
+%REG% add "HKCU\Software\Tracker Software\PDFViewer\Prompts\ConfirmMakeDefaultPDFViewer"  /v UserChoice /t REG_DWORD /d 7 /f
 %REG% add "HKCU\Software\Tracker Software\PDFViewer\Registration"  /v HideProFeatures /t REG_DWORD /d 1 /f
 ) >NUL
 
 exit /b
-
