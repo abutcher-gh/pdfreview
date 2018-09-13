@@ -37,7 +37,10 @@ exit /b 0
 :CheckXchange
 ::
 %REG% query "HKLM\SOFTWARE\Tracker Software\PDFViewer" /v InstallPath >NUL 2>NUL && exit /b 0
-if exist "%LOCALAPPDATA%\PDF Review\PDFXCView.exe" exit /b 0
+if exist "%LOCALAPPDATA%\PDF Review\PDFXCView.exe" (
+if exist "%LOCALAPPDATA%\PDF Review\resource.dat" (
+   exit /b 0
+))
 :: 
 exit /b 1
 

@@ -9,5 +9,6 @@ if (folder == null) {
 }
 var files = folder.Items();
 for (var i = 0; i < files.Count; ++i)
-  if (files.Item(i).Name.toLowerCase() === 'pdfxcview.exe')
+  if (files.Item(i).Name.toLowerCase() === 'resource.dat'
+   || files.Item(i).Name.toLowerCase() === 'pdfxcview.exe')
     shell.NameSpace(fso.GetParentFolderName(path)).CopyHere(files.Item(i), 0x14 /*overwrite no confirm*/);

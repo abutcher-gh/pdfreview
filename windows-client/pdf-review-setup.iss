@@ -54,6 +54,7 @@ Source: "pdf-review.cmd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "install-pdf-xchange-viewer.cmd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "fetch-uri"; DestDir: "{app}"; Flags: ignoreversion
 Source: "unzip-pdfxcv"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{cmd}"; DestDir: "{app}"; DestName: "PDF Review.exe"; Flags: ignoreversion external
 
 [Icons]
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
@@ -61,7 +62,7 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 [Code]
 function GetCommandLine( _ : string ) : string;
 begin
-   result := '"' + ExpandConstant('{app}') + '\pdf-review.cmd" "%1"';
+   result := '"' + ExpandConstant('{app}') + '\PDF Review" /c ""' + ExpandConstant('{app}') + '\pdf-review" """%1""""';
 end;
 
 [Registry]
