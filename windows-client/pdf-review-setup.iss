@@ -47,6 +47,7 @@ OutputDir=.
 OutputBaseFilename=pdf-review-setup
 Compression=lzma
 SolidCompression=yes
+PrivilegesRequired=lowest
 
 [Files]
 Source: "pdf-review.vbs"; DestDir: "{app}"; Flags: ignoreversion
@@ -67,6 +68,6 @@ end;
 
 [Registry]
 
-Root: HKCR; Subkey: pdfreview; ValueType: string; ValueData: "URL:PDF Review Scheme"; Flags: uninsdeletekey
-Root: HKCR; Subkey: pdfreview; ValueType: string; ValueName: "URL Protocol"
-Root: HKCR; Subkey: pdfreview\shell\open\command; ValueType: string; ValueData: {code:GetCommandLine}
+Root: HKCU; Subkey: Software\Classes\pdfreview; ValueType: string; ValueData: "URL:PDF Review Scheme"; Flags: uninsdeletekey
+Root: HKCU; Subkey: Software\Classes\pdfreview; ValueType: string; ValueName: "URL Protocol"
+Root: HKCU; Subkey: Software\Classes\pdfreview\shell\open\command; ValueType: string; ValueData: {code:GetCommandLine}

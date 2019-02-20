@@ -1,6 +1,6 @@
 ' read by installer script and used for
 ' interface validation against server
-PDFReviewClientVersion = 0.4
+PDFReviewClientVersion = 0.5
 
 ' Utilities
 '==============================================================================
