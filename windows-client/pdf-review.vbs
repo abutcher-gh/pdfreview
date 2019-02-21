@@ -1,6 +1,6 @@
 ' read by installer script and used for
 ' interface validation against server
-PDFReviewClientVersion = 0.5
+PDFReviewClientVersion = 0.6
 
 ' Utilities
 '==============================================================================
@@ -35,7 +35,7 @@ Function BinaryToString(bytes)
       .Close
    End With
 
-End Function 
+End Function
 
 
 ' Script arguments
@@ -86,11 +86,12 @@ for each match in matches
    param_name = left(s, eq-1)
    param_value = mid(s, eq+1)
    if param_name = "tag" then tag = param_value
-   if param_name = "user" then user = param_value
    if param_name = "cookie" then cookie = param_value
    if param_name = "token" then token = param_value
    if param_name = "page" then page = param_value
 next
+
+user = env("USERNAME")
 
 id = left(tag, instr(tag, "-")-1)
 
@@ -187,7 +188,7 @@ Else
 End If
 
 for each x in files
-   
+
    wscript.echo "Downloading '" & x & "'..."
 
    req.Open "GET", webdir & "/" & x, False
@@ -203,6 +204,23 @@ for each x in files
 
 next
 
+' assume_changed is true if starting from a previously uncommited file
+assume_changed = false
+
+if fso.FileExists("pending." & pdffile) then
+   ans = MsgBox("" _
+       & "A previously updated copy of this document was found locally:" & vbCrLf _
+       & "  " & sh.CurrentDirectory & "\pending." & pdffile & vbCrLf _
+       & vbCrLf _
+       & "Do you wish to use that version as the basis for comments (to" & vbCrLf _
+       & "preserve comments made in a prior update session)?" & vbCrLf _
+       , vbYesNo+vbQuestion, "Recover uncommitted comments?")
+   if ans = vbYes then
+      fso.CopyFile "pending." & pdffile, pdffile, true
+      assume_changed = true
+   end if
+end if
+
 
 ' Begin watching the confluence review page
 '==============================================================================
@@ -214,12 +232,12 @@ req.SetRequestHeader "Cookie", cookie
 req.Send
 
 
-' Create javascript to import annotations 
+' Create javascript to import annotations
 '==============================================================================
 '
 ' XXX: This should hook the DidSave event to export annotations to FDF on user
 ' XXX: save, but it doesn't seem to work in PDF Xchange viewer.
-' XXX: 
+' XXX:
 ' XXX: Hence there is some rather ugly double load and diff thing
 ' XXX: going on here.
 ' XXX:
@@ -262,7 +280,7 @@ if time_spent_secs > 0 then
    time_spent_mins = DateDiff("m", baseAnnot.DateLastModified, newPdf.DateLastModified)
 
    wscript.echo "Updated - Time spent " & time_spent_mins & " minutes"
-   
+
    comment_script = replace(comment_script, "-comment", "-export")
    set out = fso.CreateTextFile(comment_script, true, false)
    out.WriteLine "this.exportAsFDF({allFields: true, bAnnotations: true, cPath: """ & user_fdf & """, bFlags: true}); "
@@ -278,7 +296,7 @@ end if
 ' end workaround -- see above
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-modified = false
+modified = assume_changed
 
 rc = 1
 
@@ -310,6 +328,8 @@ end if
 if modified = true then
    wscript.echo "Annotations updated, uploading..."
 
+   fso.CopyFile pdffile, "pending." & pdffile, true
+
    ok = false
 
    With dbstream
@@ -332,16 +352,24 @@ if modified = true then
       If (req.status \ 100) = 2 Then
 
          wscript.echo "Upload successful."
+         fso.DeleteFile "pending." & pdffile, true
          rc = 0
 
       Else
 
          wscript.echo "Upload error." & vbCRLF
 
-         ' Display the status, status text, and response text.
-         wscript.echo "Status: " & req.status
-         wscript.echo "Status text: " & req.statustext
-         wscript.echo "Response text: " & req.responsetext
+         diag = "" _
+            & "PDF Review Scripts failed to upload your comments.  This is" & vbCRLF _
+            & "likely due to your authentication token having expired during" & vbCRLF _
+            & "your review session." & vbCRLF _
+            & vbCRLF _
+            & "Your comments have been saved locally.  Please refresh the" & vbCRLF _
+            & "Confluence review page to update authentication details" & vbCRLF _
+            & "and click the review link to retry the submission." & vbCRLF _
+
+         wscript.echo diag
+         MsgBox diag, vbExclamation, "Authentication token has expired"
 
       End If
 
@@ -386,7 +414,7 @@ Function GetPassword( myPrompt )
         objIE.Left = (.AvailWidth  - objIE.Width ) \ 2
         objIE.Top  = (.Availheight - objIE.Height) \ 2
     End With
-  
+
     ' Insert the HTML code to prompt for your super secret password'
     objIE.Document.Body.InnerHTML = "<DIV align='center'><P>" & myPrompt _
                                   & "</P>" & vbCrLf _
