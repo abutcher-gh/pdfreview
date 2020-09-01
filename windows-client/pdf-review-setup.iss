@@ -40,20 +40,22 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MySupportURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={pf}\{#MyAppName}
+DefaultDirName={userpf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=.
 OutputBaseFilename=pdf-review-setup
 Compression=lzma
 SolidCompression=yes
+PrivilegesRequired=lowest
 
 [Files]
 Source: "pdf-review.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: "pdf-review.cmd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "install-pdf-xchange-viewer.cmd"; DestDir: "{app}"; Flags: ignoreversion
-;Source: "pocket-xmlrpc\*.dll"; DestDir: "{app}\pocket-xmlrpc"; Flags: regserver 32bit
-;Source: "pocket-xmlrpc\license.txt"; DestDir: "{app}\pocket-xmlrpc"
+Source: "fetch-uri"; DestDir: "{app}"; Flags: ignoreversion
+Source: "unzip-pdfxcv"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{cmd}"; DestDir: "{app}"; DestName: "PDF Review.exe"; Flags: ignoreversion external
 
 [Icons]
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
@@ -61,11 +63,11 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 [Code]
 function GetCommandLine( _ : string ) : string;
 begin
-   result := '"' + ExpandConstant('{app}') + '\pdf-review.cmd" "%1"';
+   result := '"' + ExpandConstant('{app}') + '\PDF Review" /c ""' + ExpandConstant('{app}') + '\pdf-review" """%1""""';
 end;
 
 [Registry]
 
-Root: HKCR; Subkey: pdfreview; ValueType: string; ValueData: "URL:PDF Review Scheme"; Flags: uninsdeletekey
-Root: HKCR; Subkey: pdfreview; ValueType: string; ValueName: "URL Protocol"
-Root: HKCR; Subkey: pdfreview\shell\open\command; ValueType: string; ValueData: {code:GetCommandLine}
+Root: HKCU; Subkey: Software\Classes\pdfreview; ValueType: string; ValueData: "URL:PDF Review Scheme"; Flags: uninsdeletekey
+Root: HKCU; Subkey: Software\Classes\pdfreview; ValueType: string; ValueName: "URL Protocol"
+Root: HKCU; Subkey: Software\Classes\pdfreview\shell\open\command; ValueType: string; ValueData: {code:GetCommandLine}
