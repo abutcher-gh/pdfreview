@@ -1,5 +1,5 @@
 <form class='aui' enctype='multipart/form-data' method='post'>
- <div class='field-group'>
+ <div class='field-group' id='uploadPdf'>
   <label for='pdfcontent'>Upload file to review</label>
   <input class="long-field" type="file" accept='application/pdf' id="pdfcontent" name="pdfcontent" autofocus title="Select PDF file to upload">
  </div>
@@ -8,7 +8,14 @@
   <input class="text long-field" type="text" id="reviewSpaceKey" name="reviewSpaceKey" title="Specify review space key">
  </div>
  <div class='field-group'>
-  <div class='description'>Specify where within the above space you wish the review page to be created.  For example, specifying <code>Specification Reviews/QA/<strong>Customer Test Spec</strong></code> would create (or update) a review page <code><strong>Customer Test Spec</strong></code> as a child of a page <code>QA</code> under the top-level page <code>Specification Reviews</code>.</div>
+  <div class='description'>
+     Specify where within the above space you wish the review page to
+     be created.  For example, specifying <code>Specification
+     Reviews/QA/<strong>Customer Test Spec</strong></code> would
+     create (or update) a review page <code><strong>Customer Test
+     Spec</strong></code> as a child of a page <code>QA</code> under
+     the top-level page <code>Specification Reviews</code>.
+  </div>
   <label for='reviewPath'>Review page name</label>
   <input class="text long-field" type="text" id="reviewPath" name="reviewPath" title="Specify page name and path">
  </div>

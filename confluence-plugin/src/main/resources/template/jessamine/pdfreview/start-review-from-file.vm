@@ -6,6 +6,7 @@
  <body>
   <div id='main'>
 	   <p>From java: $action.xyz()</p>
+	   <p>From java: $action.diagnosticsHtml()</p>
   </div>
  </body>
 </html>

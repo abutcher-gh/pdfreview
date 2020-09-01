@@ -19,6 +19,7 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.pages.Page;
 import com.atlassian.confluence.pages.PageManager;
+import com.atlassian.confluence.pages.actions.PageAware;
 import com.atlassian.confluence.security.SpacePermission;
 import com.atlassian.confluence.setup.BootstrapManager;
 import com.atlassian.confluence.spaces.Space;
@@ -29,7 +30,7 @@ import com.atlassian.user.User;
 import com.atlassian.xwork.FileUploadUtils;
 import com.atlassian.xwork.FileUploadUtils.FileUploadException;
 
-public class StartReview extends ConfluenceActionSupport {
+public class StartReview extends ConfluenceActionSupport implements PageAware {
 	private static final long serialVersionUID = 3738537989616375864L;
 	private BootstrapManager bootstrapManager;
 	private PageManager pageManager;
@@ -48,6 +49,8 @@ public class StartReview extends ConfluenceActionSupport {
 		this.contentPropertyManager = contentPropertyManager;
 	}
 
+   private AbstractPage page;
+	private boolean isPageReview;
 	private String spaceKey;
 	private String reviewSpaceKey;
 	private String reviewPath;
@@ -98,6 +101,19 @@ public class StartReview extends ConfluenceActionSupport {
 		if (reviewSpaceKey == null)
 			reviewSpaceKey = s + "REV";
 	}
+
+   public void setPageReview(boolean b) {
+      isPageReview = b;
+   }
+
+   public void setPage(AbstractPage page)
+	{
+		this.page = page;
+	}
+	@Override public AbstractPage getPage() { return page; }
+	@Override public boolean isLatestVersionRequired() { return isPageReview; }
+	@Override public boolean isPageRequired() { return isPageReview; }
+	@Override public boolean isViewPermissionRequired() { return isPageReview; }
 
 	public void setReviewSpaceKey(String s) {
 		reviewSpaceKey = s;
@@ -289,6 +305,8 @@ public class StartReview extends ConfluenceActionSupport {
 		return "<ul>"
 				+ "<li>username = " + username + "</li>"
 				+ "<li>spaceKey = "	+ spaceKey + "</li>"
+				+ "<li>page = "	+ page + "</li>"
+				+ "<li>isPageReview = "	+ isPageReview + "</li>"
 				+ "<li>reviewSpaceKey = " + reviewSpaceKey + "</li>"
 				+ (pdfContent == null ? "<li>pdfContent == null</li>"
 						: "<li>pdfContent = (" + pdfContent.length()
