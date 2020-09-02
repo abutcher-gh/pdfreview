@@ -443,7 +443,11 @@ public class StartReview extends ConfluenceActionSupport implements PageAware {
 
 			Page reviewPage = null;
 
-			DefaultSaveContext ctx = new DefaultSaveContext(true, true, false);
+			DefaultSaveContext ctx = DefaultSaveContext.builder()
+            .suppressNotifications(true)
+            .updateLastModifier(true)
+            .suppressEvents(false)
+            .build();
 
 			Page reviewIndexPage = pageManager.getPage(reviewSpaceKey,
 					"Review Index");
@@ -502,7 +506,11 @@ public class StartReview extends ConfluenceActionSupport implements PageAware {
 				defaultHome = null;
 			}
 
-			ctx.setMinorEdit(false);
+			ctx = DefaultSaveContext.builder()
+            .suppressNotifications(false)
+            .updateLastModifier(true)
+            .suppressEvents(false)
+            .build();
 
 			String existingContent = reviewPage.getBodyAsString();
 

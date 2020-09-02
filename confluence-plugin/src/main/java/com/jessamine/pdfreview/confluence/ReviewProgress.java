@@ -104,7 +104,7 @@ public class ReviewProgress extends BaseMacro {
 		boolean closed = status == ReviewStatus.Abandoned
 				      || status == ReviewStatus.Completed;
 		User user = AuthenticatedUserThreadLocal.getUser();
-		List<Attachment> attachments = attachmentManager.getAttachments(page);
+		List<Attachment> attachments = attachmentManager.getAllVersionsOfAttachments(page);
 		StringBuilder commentTableBody = new StringBuilder();
 		
 		for (Attachment a : attachments) {

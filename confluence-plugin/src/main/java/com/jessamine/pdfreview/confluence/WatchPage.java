@@ -66,7 +66,7 @@ public class WatchPage extends ConfluenceActionSupport {
 			}
 
 			if (error == null || error.isEmpty()) {
-				notificationManager.addPageNotification(user, thePage);
+				notificationManager.addContentNotification(user, thePage);
 
 				String indexPageId = contentPropertyManager.getStringProperty(
 						thePage, "pdfreview.indexPageId");
