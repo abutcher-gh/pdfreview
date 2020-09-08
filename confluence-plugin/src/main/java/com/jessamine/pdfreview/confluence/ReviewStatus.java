@@ -102,7 +102,7 @@ public class ReviewStatus extends BaseMacro {
 
 	public static String getOwner(ContentPropertyManager cpm,
 			Page reviewIndexPage, String reviewId) {
-		return cpm.getTextProperty(reviewIndexPage, "pdfreview." + reviewId
+		return cpm.getStringProperty(reviewIndexPage, "pdfreview." + reviewId
 				+ ".owner");
 	}
 
