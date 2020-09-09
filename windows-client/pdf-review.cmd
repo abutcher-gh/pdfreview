@@ -16,5 +16,6 @@ echo.
 
 cscript //nologo "%HERE%\pdf-review.vbs" "%MATERIAL%"
 
-pause
-
+echo.
+echo Review session complete.  Press ENTER or close this window.
+pause >NUL 2>&1
