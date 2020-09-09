@@ -68,7 +68,9 @@ if errorlevel 1 (
    echo.
    :: set default prefs here as user is presumably only installing for this use case.
    call :SetDefaultPrefs
-   pause
+	echo.
+	echo Press ENTER or close this window.
+   pause >NUL 2>&1
    exit 1
 )
 

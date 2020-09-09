@@ -4,8 +4,8 @@ import com.atlassian.confluence.core.ConfluenceActionSupport;
 
 public class ClientCheck extends ConfluenceActionSupport {
 	private static final long serialVersionUID = -6840477097021818330L;
-	public static final String clientUrl = "https://www.assembla.com/spaces/ajbhome-process/wiki#pdf_review_client_scripts";
-	public static final double requiredClientVersion = 0.2;
+	public static final String clientUrl = "https://github.com/abutcher-gh/pdfreview/releases/latest/download/pdf-review-setup.exe";
+	public static final double requiredClientVersion = 0.8;
 
 	ClientCheck() {
 	}

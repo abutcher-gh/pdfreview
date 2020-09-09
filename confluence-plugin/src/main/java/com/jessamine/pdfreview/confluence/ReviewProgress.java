@@ -182,23 +182,34 @@ public class ReviewProgress extends BaseMacro {
 		}
 
 		if (actionText != null)
-			participate += "<h3 class='review-action-message'><a id='" + tag
-					+ "' href=\"pdfreview:"	+ webdavUrl
-					+ "?tag=" + tag
-					+ "&amp;user=" + user.getName()
-					+ "&amp;page=" + page.getId()
-					+ authcookie + token
-					+ "\">" + actionText + "</a></h3>"
-					+ "<p><strong>Note:</strong> If the link above doesn't attempt to "
-					+ "start the desktop review tool then you need to install the "
-					+ "<tt>pdfreview</tt> URL scheme and scripts from <a href=\""
-					+ ClientCheck.clientUrl
-					+ "\">here</a>.</p>"
-					+ "<p><strong>BUG:</strong> The first time you go to the link "
-					+ "(assuming the desktop tool is installed) the link may fail "
-					+ "due to authorization.  If this occurs reload this page and "
-					+ "try again &mdash; it is as yet unknown as to why this happens "
-					+ "for some clients.</p>";
+			participate +=
+					  "<strong class='review-action-message'>"
+					+   "<a id='" + tag + "' href=\"pdfreview:" + webdavUrl
+					+       "?tag=" + tag + "&amp;user=" + user.getName() + "&amp;page=" + page.getId()
+					+       authcookie + token + "\">" + actionText + "</a>"
+					+   "&nbsp;&nbsp;"
+					+   "<a href='#' title='Toggle help' onclick=\""
+					+        "a = event.target.tagName === 'A'? event.target : event.target.parentNode; "
+					+        "s = a.parentNode.parentNode.querySelector('#review-action-help').style; "
+					+        "s.display = s.display !== 'none'? 'none' : 'inherit'; "
+					+        "return false\">"
+					+     "<span class='aui-icon aui-icon-small aui-iconfont-help aui-iconfont-question-circle'></span>"
+					+   "</a>"
+					+ "</strong>"
+					+ "<div id='review-action-help' style='display: none'>"
+					+   "<p></p>"
+					+   "<p><strong>Note:</strong> If the link above doesn't attempt to "
+					+   "start the desktop review tool then you need to install the "
+					+   "<tt>pdfreview</tt> URL scheme and scripts from <a href=\""
+					+   ClientCheck.clientUrl
+					+   "\">here</a>.</p>"
+					+   "<p><strong>BUG:</strong> The first time you go to the link "
+					+   "(assuming the desktop tool is installed) the link may fail "
+					+   "due to authorization.  If this occurs reload this page and "
+					+   "try again &mdash; it is as yet unknown as to why this happens "
+					+   "for some clients.</p>"
+					+ "</div>"
+					;
 
 		rc.append("<div class='aui-message info'>");
 		rc.append("<p><strong>Status:</strong> "

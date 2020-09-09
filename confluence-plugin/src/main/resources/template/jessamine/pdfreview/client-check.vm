@@ -1,6 +1,11 @@
 
    Client version $action.clientVersion insufficient for that required
    by server.  Server requires client version ${action.requiredClientVersion}.
- 
-   Get the latest version from $action.clientUrl
+
+   Get the latest version from
+
+      $action.clientUrl
+
+   or click the link in Confluence page review help (show by clicking
+   the question mark alonside the review link you clicked to get here)
 

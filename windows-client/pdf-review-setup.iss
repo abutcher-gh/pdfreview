@@ -4,8 +4,8 @@
 
 #define MyAppName "PDF Review Scripts"
 #define MyAppPublisher "Adam Butcher"
-#define MyAppURL "https://www.assembla.com/spaces/ajbhome-process/wiki"
-#define MySupportURL "https://www.assembla.com/spaces/ajbhome-process/tickets"
+#define MyAppURL "https://github.com/abutcher-gh/pdfreview/wiki"
+#define MySupportURL "https://github.com/abutcher-gh/pdfreview/issues"
 
 ; Parse version out of actual script
 ;
