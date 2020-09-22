@@ -227,7 +227,7 @@ public class ReviewProgress extends BaseMacro {
 			rc.append(commentTableBody.toString());
 			rc.append("</tbody>\n");
 			rc.append("</table></div>\n");
-		} else {
+		} else if (!closed) {
 			rc.append("<div class='aui-message info'>There are no review comments as yet.</div>");
 		}
 
