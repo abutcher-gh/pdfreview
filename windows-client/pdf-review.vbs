@@ -1,6 +1,6 @@
 ' read by installer script and used for
 ' interface validation against server
-PDFReviewClientVersion = 0.8
+PDFReviewClientVersion = 0.81
 
 ' Utilities
 '==============================================================================
@@ -156,6 +156,7 @@ ls = "<?xml version='1.0'?>" & _
 req.open "PROPFIND", webdir, false
 req.SetRequestHeader "Content-type", "text/xml"
 req.SetRequestHeader "Translate", "f"
+req.SetRequestHeader "Depth", "1"
 req.SetRequestHeader "Cookie", cookie
 req.send ls
 
